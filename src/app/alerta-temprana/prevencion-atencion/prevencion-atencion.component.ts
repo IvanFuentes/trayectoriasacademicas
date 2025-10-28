@@ -33,9 +33,9 @@ export class PrevencionAtencionComponent {
         {
           id: '1',
           nombre: 'Ana María González Pérez',
-          matricula: 'S21001234',
+          matricula: '120204010',
           carrera: 'Ingeniería en Sistemas Computacionales',
-          email: 'ana.gonzalez@itssnp.edu.mx',
+          email: 'ana.gonzalez@escarcega.tecnm.mx',
           curso: 'Programación Orientada a Objetos',
           faltas: 2
         },
