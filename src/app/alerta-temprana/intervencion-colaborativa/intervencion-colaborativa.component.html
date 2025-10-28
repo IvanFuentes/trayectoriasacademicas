@@ -1,0 +1,191 @@
+<div class="intervencion-container">
+  <h2 class="section-title">Intervención Colaborativa</h2>
+  <p class="section-description">
+    Registro de casos de posible deserción académica
+  </p>
+
+  <form class="intervencion-form" (ngSubmit)="onSubmit()" #form="ngForm">
+    <div class="form-section">
+      <h3 class="subsection-title">Información del Estudiante</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombreEstudiante">Nombre del Estudiante</label>
+          <input
+            type="text"
+            id="nombreEstudiante"
+            name="nombreEstudiante"
+            [(ngModel)]="formData.nombreEstudiante"
+            required
+            class="form-input"
+            placeholder="Nombre completo del estudiante"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="matricula">Matrícula</label>
+          <input
+            type="text"
+            id="matricula"
+            name="matricula"
+            [(ngModel)]="formData.matricula"
+            required
+            class="form-input"
+            placeholder="Número de matrícula"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="carrera">Carrera</label>
+        <select
+          id="carrera"
+          name="carrera"
+          [(ngModel)]="formData.carrera"
+          required
+          class="form-select"
+        >
+          <option value="">Seleccione una carrera</option>
+          <option *ngFor="let carrera of carreras" [value]="carrera">
+            {{ carrera }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="subsection-title">Factores de Riesgo</h3>
+
+      <div class="factores-container">
+        <div class="factor-group">
+          <h4 class="factor-title">Académico</h4>
+          <div class="checkbox-list">
+            <label
+              *ngFor="let factor of factoresDisponibles.academico"
+              class="checkbox-label"
+            >
+              <input
+                type="checkbox"
+                [checked]="isFActorSelected('academico', factor)"
+                (change)="toggleFactor('academico', factor)"
+                class="checkbox-input"
+              >
+              <span class="checkbox-text">{{ factor }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="factor-group">
+          <h4 class="factor-title">Económico</h4>
+          <div class="checkbox-list">
+            <label
+              *ngFor="let factor of factoresDisponibles.economico"
+              class="checkbox-label"
+            >
+              <input
+                type="checkbox"
+                [checked]="isFActorSelected('economico', factor)"
+                (change)="toggleFactor('economico', factor)"
+                class="checkbox-input"
+              >
+              <span class="checkbox-text">{{ factor }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="factor-group">
+          <h4 class="factor-title">Personal</h4>
+          <div class="checkbox-list">
+            <label
+              *ngFor="let factor of factoresDisponibles.personal"
+              class="checkbox-label"
+            >
+              <input
+                type="checkbox"
+                [checked]="isFActorSelected('personal', factor)"
+                (change)="toggleFactor('personal', factor)"
+                class="checkbox-input"
+              >
+              <span class="checkbox-text">{{ factor }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-group">
+        <label for="descripcionSituacion">Descripción de la Situación</label>
+        <textarea
+          id="descripcionSituacion"
+          name="descripcionSituacion"
+          [(ngModel)]="formData.descripcionSituacion"
+          required
+          class="form-textarea"
+          placeholder="Describa detalladamente la situación del estudiante..."
+          rows="5"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="subsection-title">Nivel de Alerta a la Problemática</h3>
+
+      <div class="slider-container">
+        <input
+          type="range"
+          id="nivelAlerta"
+          name="nivelAlerta"
+          [(ngModel)]="formData.nivelAlerta"
+          min="1"
+          max="10"
+          class="slider"
+          [class]="getNivelAlertaClass()"
+        >
+        <div class="slider-value" [class]="getNivelAlertaClass()">
+          {{ formData.nivelAlerta }}
+        </div>
+      </div>
+
+      <div class="slider-labels">
+        <span class="slider-label">1 (Menor)</span>
+        <span class="slider-label">10 (Mayor)</span>
+      </div>
+    </div>
+
+    <div class="prevencion-info">
+      <div class="prevencion-card primaria">
+        <h4 class="prevencion-titulo">Prevención Primaria</h4>
+        <p class="prevencion-descripcion">
+          La situación no es un problema aún, pero puede empeorar.
+        </p>
+      </div>
+
+      <div class="prevencion-card secundaria">
+        <h4 class="prevencion-titulo">Prevención Secundaria</h4>
+        <p class="prevencion-descripcion">
+          La situación se ha complicado y me ha estado generando conflictos.
+        </p>
+      </div>
+
+      <div class="prevencion-card terciaria">
+        <h4 class="prevencion-titulo">Prevención Terciaria</h4>
+        <p class="prevencion-descripcion">
+          El problema me ha llevado a tomar la decisión de interrumpir mis estudios.
+        </p>
+      </div>
+    </div>
+
+    <p class="oms-reference">
+      Niveles de prevención definidos por la Organización Mundial de la Salud (OMS)
+    </p>
+
+    <button
+      type="submit"
+      class="submit-button"
+      [disabled]="!form.valid"
+    >
+      Registrar Caso de Intervención
+    </button>
+  </form>
+</div>

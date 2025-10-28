@@ -1,0 +1,30 @@
+<div class="alerta-temprana-container">
+  <header class="module-header">
+    <div class="header-content">
+      <button class="back-button" (click)="goBack()">
+        ← Volver
+      </button>
+      <h1 class="module-title">Alerta Temprana</h1>
+    </div>
+  </header>
+
+  <div class="tabs-container">
+    <div class="tabs-menu">
+      <button
+        *ngFor="let tab of tabs"
+        class="tab-button"
+        [class.active]="activeTab === tab.id"
+        (click)="selectTab(tab.id)"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+  </div>
+
+  <main class="module-content">
+    <app-gestion-asistencias *ngIf="activeTab === 'gestion'"></app-gestion-asistencias>
+    <app-seguimiento-registro *ngIf="activeTab === 'seguimiento'"></app-seguimiento-registro>
+    <app-prevencion-atencion *ngIf="activeTab === 'prevencion'"></app-prevencion-atencion>
+    <app-intervencion-colaborativa *ngIf="activeTab === 'intervencion'"></app-intervencion-colaborativa>
+  </main>
+</div>

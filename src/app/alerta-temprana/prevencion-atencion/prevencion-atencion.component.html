@@ -1,0 +1,102 @@
+<div class="prevencion-container">
+  <h2 class="section-title">Prevención y Atención Focalizada</h2>
+  <p class="section-description">
+    Identificación de estudiantes con faltas para intervención oportuna
+  </p>
+
+  <div class="legend-container">
+    <div class="legend-item">
+      <span class="legend-dot alerta"></span>
+      <span class="legend-text">1-2 faltas (Alerta)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot advertencia"></span>
+      <span class="legend-text">3-4 faltas (Advertencia)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot critico"></span>
+      <span class="legend-text">5+ faltas (Crítico)</span>
+    </div>
+  </div>
+
+  <div class="carreras-list">
+    <div
+      *ngFor="let carrera of carreras"
+      class="carrera-item"
+      [class.expanded]="selectedCarrera === carrera.id"
+    >
+      <button
+        class="carrera-button"
+        (click)="selectCarrera(carrera.id)"
+      >
+        <span class="carrera-nombre">{{ carrera.nombre }}</span>
+        <span class="carrera-badge">{{ carrera.estudiantes.length }} estudiantes</span>
+        <span class="carrera-icon">{{ selectedCarrera === carrera.id ? '−' : '+' }}</span>
+      </button>
+
+      <div class="estudiantes-container" *ngIf="selectedCarrera === carrera.id">
+        <div
+          *ngFor="let estudiante of carrera.estudiantes"
+          class="estudiante-card"
+          [class]="getFaltasClass(estudiante.faltas)"
+          (click)="openModal(estudiante)"
+        >
+          <div class="estudiante-info">
+            <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
+            <p class="estudiante-curso">{{ estudiante.curso }}</p>
+          </div>
+          <div class="faltas-badge" [class]="getFaltasClass(estudiante.faltas)">
+            <span class="faltas-numero">{{ estudiante.faltas }}</span>
+            <span class="faltas-texto">faltas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeModal()">×</button>
+
+    <h2 class="modal-title">Información del Estudiante</h2>
+
+    <div class="modal-body" *ngIf="selectedEstudiante">
+      <div class="info-row">
+        <span class="info-label">Nombre Completo:</span>
+        <span class="info-value">{{ selectedEstudiante.nombre }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Matrícula:</span>
+        <span class="info-value">{{ selectedEstudiante.matricula }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Carrera:</span>
+        <span class="info-value">{{ selectedEstudiante.carrera }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Correo Electrónico:</span>
+        <span class="info-value">{{ selectedEstudiante.email }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Curso:</span>
+        <span class="info-value">{{ selectedEstudiante.curso }}</span>
+      </div>
+
+      <div class="info-row highlight">
+        <span class="info-label">Total de Faltas:</span>
+        <span class="info-value faltas-count" [class]="getFaltasClass(selectedEstudiante.faltas)">
+          {{ selectedEstudiante.faltas }}
+        </span>
+      </div>
+
+      <button class="report-button" (click)="generarReporte()">
+        Generar Reporte de Seguimiento
+      </button>
+    </div>
+  </div>
+</div>
