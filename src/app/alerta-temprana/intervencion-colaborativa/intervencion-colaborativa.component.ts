@@ -89,7 +89,7 @@ export class IntervencionColaborativaComponent {
       factoresEconomico: [],
       factoresPersonal: [],
       descripcionSituacion: '',
-      nivelAlerta: 5
+      nivelAlerta: 1
     };
   }
 }
