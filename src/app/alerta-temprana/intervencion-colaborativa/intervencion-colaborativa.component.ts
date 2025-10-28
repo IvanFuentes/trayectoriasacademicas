@@ -24,7 +24,7 @@ export class IntervencionColaborativaComponent {
     factoresEconomico: [] as string[],
     factoresPersonal: [] as string[],
     descripcionSituacion: '',
-    nivelAlerta: 5
+    nivelAlerta: 1
   };
 
   factoresDisponibles = {
