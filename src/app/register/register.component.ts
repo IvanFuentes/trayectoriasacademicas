@@ -57,4 +57,4 @@ export class RegisterComponent {
   } finally {
     this.isLoading = false;
   }
-}
+}}
