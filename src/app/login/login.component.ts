@@ -57,4 +57,5 @@ function fakeAuth(user: string, pass: string): Promise<void> {
       user === 'admin' && pass === 'admin123' ? resolve() : reject(new Error('Credenciales inválidas'));
     }, 700);
   });
+
 }
