@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { WelcomeComponent } from './welcome/welcome.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -10,8 +11,7 @@ import { adminGuard } from './guards/admin.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/login',
-    pathMatch: 'full'
+    component: WelcomeComponent
   },
   {
     path: 'login',
