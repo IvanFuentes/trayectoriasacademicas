@@ -34,7 +34,7 @@ export class LoginComponent {
 
     try {
       const user = await this.authService.login(this.username, this.password);
-      this.successMessage = `¡Bienvenido ${user.full_name || user.username}!`;
+   this.successMessage = `¡Bienvenido ${user.full_name || (user as any).username || 'usuario'}!`;
       setTimeout(() => this.router.navigate(['/dashboard']), 1000);
     } catch (error: any) {
       console.error('Error de login:', error);
