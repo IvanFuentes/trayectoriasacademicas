@@ -7,17 +7,17 @@
     <div class="login-form-container">
       <h2 class="form-title">Iniciar Sesión</h2>
 
-      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm" novalidate>
         <div class="form-group">
-          <label for="email">Correo Electrónico</label>
+          <label for="username">Usuario</label>
           <input
-            type="email"
-            id="email"
-            name="email"
-            [(ngModel)]="email"
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="username"
             required
             class="form-input"
-            placeholder="Ingrese su correo electrónico"
+            placeholder="Tu nombre de usuario"
           >
         </div>
 
@@ -37,6 +37,7 @@
               type="button"
               class="toggle-password"
               (click)="togglePasswordVisibility()"
+              aria-label="Mostrar/ocultar contraseña"
             >
               {{ showPassword ? '👁️' : '👁️‍🗨️' }}
             </button>
@@ -50,7 +51,7 @@
         <button
           type="submit"
           class="submit-button"
-          [disabled]="isLoading || !email || !password"
+          [disabled]="isLoading || !username || !password"
         >
           {{ isLoading ? 'Cargando...' : 'Ingresar' }}
         </button>
