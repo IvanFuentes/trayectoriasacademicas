@@ -9,15 +9,15 @@
 
       <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
         <div class="form-group">
-          <label for="username">Usuario</label>
+          <label for="email">Correo Electrónico</label>
           <input
-            type="text"
-            id="username"
-            name="username"
-            [(ngModel)]="username"
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="email"
             required
             class="form-input"
-            placeholder="Ingrese su usuario"
+            placeholder="Ingrese su correo electrónico"
           >
         </div>
 
@@ -50,7 +50,7 @@
         <button
           type="submit"
           class="submit-button"
-          [disabled]="isLoading || !username || !password"
+          [disabled]="isLoading || !email || !password"
         >
           {{ isLoading ? 'Cargando...' : 'Ingresar' }}
         </button>

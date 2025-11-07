@@ -11,7 +11,6 @@ export interface Role {
 export interface User {
   id: string;
   email: string;
-  username: string;
   full_name: string;
   role_id: string;
   is_active: boolean;
@@ -80,13 +79,12 @@ export class AuthService {
 
   /** Login “demo”: valida existencia de usuario activo por username.
    *  En producción, integra Supabase Auth o tu backend. */
-  async login(username: string, password: string): Promise<User> {
+  async login(email: string, password: string): Promise<User> {
     try {
-      // Aquí podrías validar el password con tu backend o Supabase Auth
       const { data, error } = await this.supabase
         .from('users')
         .select('*, roles(name, level)')
-        .eq('username', username)
+        .eq('email', email)
         .eq('is_active', true)
         .maybeSingle();
 
@@ -114,9 +112,8 @@ export class AuthService {
   /** Registro con token de invitación */
   async registerWithToken(
     email: string,
-    username: string,
     fullName: string,
-    password: string,   // reservado para tu backend/Auth
+    password: string,
     token: string
   ): Promise<void> {
     try {
@@ -142,7 +139,6 @@ export class AuthService {
         .insert([
           {
             email,
-            username,
             full_name: fullName,
             role_id: tokenData.role_id,
             invitation_token_id: tokenData.id,
@@ -218,7 +214,6 @@ export class AuthService {
     const u: User = {
       id: raw.id,
       email: raw.email,
-      username: raw.username,
       full_name: raw.full_name,
       role_id: raw.role_id,
       is_active: raw.is_active,
