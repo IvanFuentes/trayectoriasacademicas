@@ -7,19 +7,23 @@ import { AlertaTempranaComponent } from './alerta-temprana/alerta-temprana.compo
 import { UserManagementComponent } from './admin/user-management/user-management.component';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { publicGuard } from './guards/public.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    component: WelcomeComponent
+    component: WelcomeComponent,
+    canActivate: [publicGuard]
   },
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
+    canActivate: [publicGuard]
   },
   {
     path: 'register',
-    component: RegisterComponent
+    component: RegisterComponent,
+    canActivate: [publicGuard]
   },
   {
     path: 'dashboard',
@@ -38,6 +42,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/login'
+    redirectTo: ''
   }
 ];
