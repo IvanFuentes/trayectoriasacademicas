@@ -15,16 +15,9 @@ export const routes: Routes = [
     component: WelcomeComponent,
     canActivate: [publicGuard]
   },
-  {
-    path: 'login',
-    component: LoginComponent,
-    canActivate: [publicGuard]
-  },
-  {
-    path: 'register',
-    component: RegisterComponent,
-    canActivate: [publicGuard]
-  },
+  { path: 'register', component: RegisterComponent /*, canActivate: [publicGuard]*/ },
+{ path: 'login', component: LoginComponent /*, canActivate: [publicGuard]*/ },
+
   {
     path: 'dashboard',
     component: DashboardComponent,
