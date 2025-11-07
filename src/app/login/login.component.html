@@ -7,18 +7,18 @@
     <div class="login-form-container">
       <h2 class="form-title">Iniciar Sesión</h2>
 
-      <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm" novalidate>
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
         <div class="form-group">
-          <label for="email">Correo Electrónico</label>
+          <label for="username">Usuario</label>
           <input
-            type="email"
-            id="email"
-            name="email"
-            [(ngModel)]="email"
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="username"
             required
             class="form-input"
-            placeholder="Ingrese su correo electrónico"
-          />
+            placeholder="Ingrese su usuario"
+          >
         </div>
 
         <div class="form-group">
@@ -32,12 +32,11 @@
               required
               class="form-input"
               placeholder="Ingrese su contraseña"
-            />
+            >
             <button
               type="button"
               class="toggle-password"
               (click)="togglePasswordVisibility()"
-              aria-label="Mostrar u ocultar contraseña"
             >
               {{ showPassword ? '👁️' : '👁️‍🗨️' }}
             </button>
@@ -51,17 +50,14 @@
         <button
           type="submit"
           class="submit-button"
-          [disabled]="isLoading || !email || !password"
+          [disabled]="isLoading || !username || !password"
         >
           {{ isLoading ? 'Cargando...' : 'Ingresar' }}
         </button>
       </form>
 
       <div class="register-link">
-        <p>
-          ¿No tienes cuenta?
-          <a routerLink="/register">Crear cuenta con token</a>
-        </p>
+        <p>¿No tienes cuenta? <a routerLink="/register">Crear cuenta con token</a></p>
       </div>
     </div>
   </div>
