@@ -12,22 +12,19 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  // 🧩 Propiedades necesarias para el HTML
-  email = '';              // campo de correo electrónico
-  password = '';           // campo de contraseña
-  showPassword = false;    // controla visibilidad del input contraseña
+  email = '';             // 👈 usado en el formulario
+  password = '';          // 👈 usado en el formulario
+  showPassword = false;   // 👁️ controla visibilidad
   isLoading = false;
   errorMessage = '';
   successMessage = '';
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  // 👁️ Alternar visibilidad del password
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
-  // 🔐 Manejo del login
   async onSubmit(form: NgForm): Promise<void> {
     this.errorMessage = '';
     this.successMessage = '';
@@ -40,7 +37,7 @@ export class LoginComponent {
     this.isLoading = true;
 
     try {
-      // Usamos el correo como "username" para compatibilidad con tu backend actual
+      // 👇 Login usando email (puedes cambiar a username si lo prefieres)
       const user = await this.authService.login(this.email, this.password);
       this.successMessage = `¡Bienvenido ${user.full_name || (user as any).username || 'usuario'}!`;
 
