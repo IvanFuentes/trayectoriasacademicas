@@ -56,6 +56,10 @@
   margin-bottom: 8px;
 }
 
+.password-input-group {
+  position: relative;
+}
+
 .form-input {
   width: 100%;
   padding: 12px 16px;
@@ -77,6 +81,18 @@
 
 .form-input::placeholder {
   color: #94a3b8;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
 }
 
 .error-message {
@@ -116,6 +132,24 @@
 .submit-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.register-link a {
+  color: #7ba3c0;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.register-link a:hover {
+  color: #6b8fa3;
 }
 
 @media (max-width: 768px) {
