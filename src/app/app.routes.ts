@@ -1,40 +1,43 @@
 import { Routes } from '@angular/router';
-import { WelcomeComponent } from './welcome/welcome.component';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { AlertaTempranaComponent } from './alerta-temprana/alerta-temprana.component';
-import { UserManagementComponent } from './admin/user-management/user-management.component';
-import { authGuard } from './guards/auth.guard';
-import { adminGuard } from './guards/admin.guard';
-import { publicGuard } from './guards/public.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    component: WelcomeComponent,
-    canActivate: [publicGuard]
+    loadComponent: () =>
+      import('./welcome/welcome.component').then(m => m.WelcomeComponent),
+    // canActivate: [publicGuard], // ← Actívalo cuando el guard esté listo
   },
-  { path: 'register', component: RegisterComponent /*, canActivate: [publicGuard]*/ },
-{ path: 'login', component: LoginComponent /*, canActivate: [publicGuard]*/ },
-
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./login/login.component').then(m => m.LoginComponent),
+    // canActivate: [publicGuard],
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./register/register.component').then(m => m.RegisterComponent),
+    // canActivate: [publicGuard],
+  },
   {
     path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [authGuard]
+    loadComponent: () =>
+      import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
+    // canActivate: [authGuard],
   },
   {
     path: 'admin/users',
-    component: UserManagementComponent,
-    canActivate: [authGuard, adminGuard]
+    loadComponent: () =>
+      import('./admin/user-management/user-management.component')
+        .then(m => m.UserManagementComponent),
+    // canActivate: [authGuard, adminGuard],
   },
   {
     path: 'alerta-temprana',
-    component: AlertaTempranaComponent,
-    canActivate: [authGuard]
+    loadComponent: () =>
+      import('./alerta-temprana/alerta-temprana.component')
+        .then(m => m.AlertaTempranaComponent),
+    // canActivate: [authGuard],
   },
-  {
-    path: '**',
-    redirectTo: ''
-  }
+  { path: '**', redirectTo: '' },
 ];
