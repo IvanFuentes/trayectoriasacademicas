@@ -7,7 +7,7 @@ import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule], // ¡clave para ngModel, *ngIf y routerLink!
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
@@ -19,10 +19,10 @@ export class RegisterComponent {
   password = '';
   confirmPassword = '';
 
-  errorMessage = '';
-  successMessage = '';
   isLoading = false;
   showPassword = false;
+  errorMessage = '';
+  successMessage = '';
 
   constructor(private auth: AuthService, private router: Router) {}
 
