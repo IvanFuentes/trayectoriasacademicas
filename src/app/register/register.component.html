@@ -3,7 +3,7 @@
     <h1>Crear Cuenta</h1>
     <p class="subtitle">Ingresa tu token de invitación para registrarte</p>
 
-    <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+  <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm">
       <div class="form-group">
         <label for="token">Token de Invitación *</label>
         <input
