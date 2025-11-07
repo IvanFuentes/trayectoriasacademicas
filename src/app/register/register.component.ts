@@ -1,79 +1,66 @@
-
+// src/app/register/register.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule], // <-- agrega RouterModule
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'],
+  styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  // Campos ligados a [(ngModel)] en tu HTML
-  username = '';
+  token = '';
   email = '';
+  username = '';
+  fullName = '';
   password = '';
   confirmPassword = '';
-  token = ''; // si tu flujo usa token de invitación
 
-  // Estado UI
-  showPassword = false;
-  isLoading = false;
   errorMessage = '';
   successMessage = '';
+  isLoading = false;
+  showPassword = false;
 
-  constructor(private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
-  async onSubmit(form?: NgForm): Promise<void> {
+  onSubmit(form?: NgForm): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
     if (form && form.invalid) {
-      this.errorMessage = 'Completa los campos requeridos.';
+      this.errorMessage = 'Completa los campos requeridos';
+      return;
+    }
+    if (!this.token || !this.email || !this.username || !this.fullName || !this.password) {
+      this.errorMessage = 'Todos los campos son requeridos';
       return;
     }
     if (this.password !== this.confirmPassword) {
-      this.errorMessage = 'Las contraseñas no coinciden.';
+      this.errorMessage = 'Las contraseñas no coinciden';
+      return;
+    }
+    if (this.password.length < 6) {
+      this.errorMessage = 'La contraseña debe tener al menos 6 caracteres';
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    try {
-      // TODO: reemplaza por tu servicio real (Supabase / API propia)
-      await fakeRegister({
-        username: this.username,
-        email: this.email,
-        password: this.password,
-        token: this.token,
-      });
-
-      this.successMessage = 'Cuenta creada. Redirigiendo al inicio de sesión…';
-      setTimeout(() => this.router.navigate(['/login']), 800);
-    } catch (err: any) {
-      this.errorMessage = err?.message || 'No se pudo crear la cuenta.';
-    } finally {
-      this.isLoading = false;
-    }
+    this.authService.registerWithToken(this.email, this.username, this.fullName, this.password, this.token)
+      .then(() => {
+        this.successMessage = 'Cuenta creada exitosamente';
+        setTimeout(() => this.router.navigate(['/dashboard']), 800);
+      })
+      .catch(err => {
+        this.errorMessage = err?.message || 'Error al crear la cuenta';
+      })
+      .finally(() => this.isLoading = false);
   }
-}
-
-/** Simulación: reemplazar por llamada real a tu backend/Supabase */
-function fakeRegister(payload: { username: string; email: string; password: string; token?: string; }): Promise<void> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // ejemplo tonto de validación de token
-      if (payload.token && payload.token.length < 4) {
-        reject(new Error('Token inválido.'));
-      } else {
-        resolve();
-      }
-    }, 700);
-  });
 }
