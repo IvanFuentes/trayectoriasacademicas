@@ -1,9 +1,64 @@
-// src/app/login/login.component.ts (temporal)
-import { Component } from '@angular/core';
+<div class="login-container">
+  <div class="login-card">
+    <div class="welcome-header">
+      <h1 class="app-title">Trayectorias Académicas</h1>
+    </div>
 
-@Component({
-  selector: 'app-login',
-  standalone: true,
-  template: `<h1 style="padding:2rem">Login OK</h1>`
-})
-export class LoginComponent {}
+    <div class="login-form-container">
+      <h2 class="form-title">Iniciar Sesión</h2>
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <div class="form-group">
+          <label for="username">Usuario</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="username"
+            required
+            class="form-input"
+            placeholder="Ingrese su usuario"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="password-input-group">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [(ngModel)]="password"
+              required
+              class="form-input"
+              placeholder="Ingrese su contraseña"
+            >
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePasswordVisibility()"
+            >
+              {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="isLoading || !username || !password"
+        >
+          {{ isLoading ? 'Cargando...' : 'Ingresar' }}
+        </button>
+      </form>
+
+      <div class="register-link">
+        <p>¿No tienes cuenta? <a routerLink="/register">Crear cuenta con token</a></p>
+      </div>
+    </div>
+  </div>
+</div>
