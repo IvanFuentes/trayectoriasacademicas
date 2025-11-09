@@ -1,0 +1,83 @@
+<div class="seguimiento-container">
+  <h2 class="section-title">Seguimiento del Registro de Asistencia</h2>
+  <p class="section-description">
+    Monitoreo del histórico de registros de asistencia por docente
+  </p>
+
+  <div class="legend-container">
+    <div class="legend-item">
+      <span class="legend-dot completado"></span>
+      <span class="legend-text">Asistencia Registrada</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot pendiente"></span>
+      <span class="legend-text">Pendiente de Registro</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot futuro"></span>
+      <span class="legend-text">Sesión Futura</span>
+    </div>
+  </div>
+
+  <div class="carreras-list">
+    <div
+      *ngFor="let carrera of carreras"
+      class="carrera-item"
+      [class.expanded]="selectedCarrera === carrera.id"
+    >
+      <button
+        class="carrera-button"
+        (click)="selectCarrera(carrera.id)"
+      >
+        <span class="carrera-nombre">{{ carrera.nombre }}</span>
+        <span class="carrera-icon">{{ selectedCarrera === carrera.id ? '−' : '+' }}</span>
+      </button>
+
+      <div class="cursos-container" *ngIf="selectedCarrera === carrera.id">
+        <div
+          *ngFor="let curso of carrera.cursos"
+          class="curso-card"
+        >
+          <div class="curso-header">
+            <div class="curso-info">
+              <h3 class="curso-nombre">{{ curso.nombre }}</h3>
+              <p class="curso-details">{{ curso.grupo }} - {{ curso.docente }}</p>
+            </div>
+            <div class="curso-stats">
+              <div class="stat-item completado">
+                <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'completado') }}</span>
+                <span class="stat-label">Registradas</span>
+              </div>
+              <div class="stat-item pendiente">
+                <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'pendiente') }}</span>
+                <span class="stat-label">Pendientes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sesiones-timeline">
+            <div
+              *ngFor="let sesion of curso.sesiones"
+              class="sesion-item"
+              [class.completado]="sesion.estado === 'completado'"
+              [class.pendiente]="sesion.estado === 'pendiente'"
+              [class.futuro]="sesion.estado === 'futuro'"
+            >
+              <div class="sesion-dot"></div>
+              <div class="sesion-info">
+                <span class="sesion-fecha">{{ sesion.fecha }}</span>
+                <span class="sesion-estado">
+                  {{
+                    sesion.estado === 'completado' ? 'Registrada' :
+                    sesion.estado === 'pendiente' ? 'Pendiente' :
+                    'Programada'
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

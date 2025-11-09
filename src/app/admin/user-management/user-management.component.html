@@ -1,0 +1,237 @@
+<div class="user-management-container">
+  <div class="header">
+    <h1>Gestión de Usuarios</h1>
+    <p>Administra cuentas de usuario, tokens de invitación y permisos</p>
+  </div>
+
+  <div *ngIf="successMessage" class="success-alert">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="error-alert">
+    {{ errorMessage }}
+  </div>
+
+  <div class="tabs">
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'users'"
+      (click)="activeTab = 'users'"
+    >
+      Usuarios
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'tokens'"
+      (click)="activeTab = 'tokens'"
+    >
+      Tokens de Invitación
+    </button>
+  </div>
+
+  <!-- USERS TAB -->
+  <div *ngIf="activeTab === 'users'" class="tab-content">
+    <div *ngIf="isLoading" class="loading">Cargando usuarios...</div>
+
+    <div *ngIf="!isLoading && users.length === 0" class="empty-state">
+      <p>No hay usuarios registrados aún</p>
+    </div>
+
+    <div *ngIf="!isLoading && users.length > 0" class="users-table">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Fecha Creación</th>
+              <th>Último Login</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users" [class.inactive]="!user.is_active">
+              <td>{{ user.full_name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.username }}</td>
+              <td>
+                <span class="role-badge" [attr.data-role]="user.role?.name">
+                  {{ user.role?.name }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" [class.active]="user.is_active" [class.inactive]="!user.is_active">
+                  {{ user.is_active ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>{{ formatDate(user.created_at) }}</td>
+              <td>{{ formatDate(user.last_login) }}</td>
+              <td>
+                <div class="actions">
+                  <button
+                    class="btn-edit"
+                    (click)="startEditUser(user)"
+                    [disabled]="selectedUserForEdit?.id === user.id"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    *ngIf="user.is_active"
+                    class="btn-deactivate"
+                    (click)="deactivateUser(user.id)"
+                  >
+                    Desactivar
+                  </button>
+                  <button
+                    *ngIf="!user.is_active"
+                    class="btn-activate"
+                    (click)="activateUser(user.id)"
+                  >
+                    Activar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Edit User Modal -->
+      <div *ngIf="selectedUserForEdit" class="modal-overlay" (click)="cancelEdit()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h3>Editar Usuario</h3>
+          <p class="modal-subtitle">{{ selectedUserForEdit.full_name }}</p>
+
+          <div class="form-group">
+            <label>Rol Actual: <strong>{{ selectedUserForEdit.role?.name }}</strong></label>
+            <select [(ngModel)]="editingRole" class="form-input">
+              <option *ngFor="let role of roles" [value]="role.id">
+                {{ role.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn-cancel" (click)="cancelEdit()">Cancelar</button>
+            <button
+              class="btn-save"
+              (click)="saveUserChanges()"
+              [disabled]="editingRole === selectedUserForEdit.role_id || isLoading"
+            >
+              {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOKENS TAB -->
+  <div *ngIf="activeTab === 'tokens'" class="tab-content">
+    <div class="tokens-header">
+      <button
+        class="btn-primary"
+        (click)="showTokenForm = !showTokenForm"
+      >
+        + Generar Nuevo Token
+      </button>
+    </div>
+
+    <div *ngIf="showTokenForm" class="token-form">
+      <div class="form-group">
+        <label>Selecciona un Rol</label>
+        <select [(ngModel)]="selectedRoleForToken" class="form-input">
+          <option value="">-- Selecciona un rol --</option>
+          <option *ngFor="let role of roles" [value]="role.id">
+            {{ role.name }} - {{ role.description }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button
+          class="btn-cancel"
+          (click)="showTokenForm = false"
+        >
+          Cancelar
+        </button>
+        <button
+          class="btn-primary"
+          (click)="generateToken()"
+          [disabled]="!selectedRoleForToken || isLoading"
+        >
+          {{ isLoading ? 'Generando...' : 'Generar Token' }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">Cargando tokens...</div>
+
+    <div *ngIf="!isLoading && invitationTokens.length === 0" class="empty-state">
+      <p>No hay tokens de invitación</p>
+    </div>
+
+    <div *ngIf="!isLoading && invitationTokens.length > 0" class="tokens-list">
+      <div *ngFor="let token of invitationTokens" class="token-card" [class.expired]="isTokenExpired(token)" [class.used]="token.is_used">
+        <div class="token-header">
+          <div>
+            <h4>{{ token.role?.name }}</h4>
+            <p class="token-value">{{ token.token }}</p>
+          </div>
+          <button
+            class="btn-copy"
+            (click)="copyToClipboard(token.token)"
+            [disabled]="token.is_used"
+          >
+            Copiar
+          </button>
+        </div>
+
+        <div class="token-info">
+          <div class="info-row">
+            <span class="label">Estado:</span>
+            <span class="status-badge" [class.used]="token.is_used" [class.active]="!token.is_used">
+              {{ token.is_used ? 'Usado' : 'Disponible' }}
+            </span>
+          </div>
+
+          <div class="info-row">
+            <span class="label">Creado:</span>
+            <span>{{ formatDate(token.created_at) }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="label">Expira:</span>
+            <span [class.expired]="isTokenExpired(token)">
+              {{ formatDate(token.expires_at) }}
+              <span *ngIf="isTokenExpired(token)" class="expired-badge">Expirado</span>
+            </span>
+          </div>
+
+          <div *ngIf="token.is_used" class="info-row">
+            <span class="label">Usado por:</span>
+            <span>{{ token.used_by_user?.full_name }} ({{ token.used_by_user?.email }})</span>
+          </div>
+
+          <div *ngIf="token.is_used" class="info-row">
+            <span class="label">Fecha de Uso:</span>
+            <span>{{ formatDate(token.used_at) }}</span>
+          </div>
+        </div>
+
+        <div class="token-actions">
+          <button
+            *ngIf="!token.is_used && !isTokenExpired(token)"
+            class="btn-revoke"
+            (click)="revokeToken(token.id)"
+          >
+            Revocar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
