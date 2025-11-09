@@ -1,0 +1,115 @@
+<div class="register-container">
+  <div class="register-card">
+    <h1>Crear Cuenta</h1>
+    <p class="subtitle">Ingresa tu token de invitación para registrarte</p>
+
+  <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm">
+      <div class="form-group">
+        <label for="token">Token de Invitación *</label>
+        <input
+          type="text"
+          id="token"
+          [(ngModel)]="token"
+          name="token"
+          placeholder="Pega tu token aquí"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="fullName">Nombre Completo *</label>
+        <input
+          type="text"
+          id="fullName"
+          [(ngModel)]="fullName"
+          name="fullName"
+          placeholder="Tu nombre completo"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Correo Electrónico *</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="correo@ejemplo.com"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="username">Usuario *</label>
+        <input
+          type="text"
+          id="username"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Tu nombre de usuario"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña *</label>
+        <div class="password-input-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Contraseña"
+            required
+            class="form-input"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+          >
+            {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Contraseña *</label>
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          id="confirmPassword"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          placeholder="Confirma tu contraseña"
+          required
+          class="form-input"
+        />
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="isLoading"
+        class="submit-button"
+      >
+        {{ isLoading ? 'Creando cuenta...' : 'Crear Cuenta' }}
+      </button>
+    </form>
+
+    <div class="login-link">
+      <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a></p>
+    </div>
+  </div>
+</div>
