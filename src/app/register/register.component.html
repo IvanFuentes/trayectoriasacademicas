@@ -3,7 +3,7 @@
     <h1>Crear Cuenta</h1>
     <p class="subtitle">Ingresa tu token de invitación para registrarte</p>
 
-  <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm">
+  <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
       <div class="form-group">
         <label for="token">Token de Invitación *</label>
         <input
@@ -38,19 +38,6 @@
           [(ngModel)]="email"
           name="email"
           placeholder="correo@ejemplo.com"
-          required
-          class="form-input"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="username">Usuario *</label>
-        <input
-          type="text"
-          id="username"
-          [(ngModel)]="username"
-          name="username"
-          placeholder="Tu nombre de usuario"
           required
           class="form-input"
         />
