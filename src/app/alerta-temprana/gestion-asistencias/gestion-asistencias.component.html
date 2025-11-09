@@ -1,0 +1,53 @@
+<div class="gestion-container">
+  <h2 class="section-title">Gestión de Asistencias</h2>
+  <p class="section-description">
+    Seleccione una carrera para ver el estado de configuración de asistencias en los cursos
+  </p>
+
+  <div class="carreras-list">
+    <div
+      *ngFor="let carrera of carreras"
+      class="carrera-item"
+      [class.expanded]="selectedCarrera === carrera.id"
+    >
+      <button
+        class="carrera-button"
+        (click)="selectCarrera(carrera.id)"
+      >
+        <span class="carrera-nombre">{{ carrera.nombre }}</span>
+        <span class="carrera-icon">{{ selectedCarrera === carrera.id ? '−' : '+' }}</span>
+      </button>
+
+      <div class="cursos-container" *ngIf="selectedCarrera === carrera.id">
+        <div class="cursos-table">
+          <div class="table-header">
+            <div class="header-cell">Curso</div>
+            <div class="header-cell">Grupo</div>
+            <div class="header-cell">Docente</div>
+            <div class="header-cell">Estado</div>
+          </div>
+
+          <div class="table-body">
+            <div
+              *ngFor="let curso of carrera.cursos"
+              class="table-row"
+            >
+              <div class="table-cell">{{ curso.nombre }}</div>
+              <div class="table-cell">{{ curso.grupo }}</div>
+              <div class="table-cell">{{ curso.docente }}</div>
+              <div class="table-cell">
+                <span
+                  class="estado-badge"
+                  [class.configurado]="curso.estado === 'configurado'"
+                  [class.pendiente]="curso.estado === 'pendiente'"
+                >
+                  {{ curso.estado === 'configurado' ? 'Configurado' : 'Pendiente de Configuración' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

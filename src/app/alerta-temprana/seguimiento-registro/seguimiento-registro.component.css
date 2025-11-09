@@ -1,0 +1,311 @@
+.seguimiento-container {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.section-description {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0 0 24px 0;
+}
+
+.legend-container {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.legend-dot.completado {
+  background: #10b981;
+}
+
+.legend-dot.pendiente {
+  background: #ef4444;
+}
+
+.legend-dot.futuro {
+  background: #9ca3af;
+}
+
+.legend-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.carreras-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.carrera-item {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.carrera-item.expanded {
+  border-color: #8ba8bc;
+  box-shadow: 0 4px 12px rgba(107, 143, 163, 0.15);
+}
+
+.carrera-button {
+  width: 100%;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8eef2 100%);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carrera-button:hover {
+  background: linear-gradient(135deg, #e8eef2 0%, #d4dfe8 100%);
+}
+
+.carrera-nombre {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: left;
+}
+
+.carrera-icon {
+  font-size: 24px;
+  font-weight: bold;
+  color: #6b8fa3;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 6px;
+}
+
+.cursos-container {
+  padding: 24px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.curso-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fafbfc;
+}
+
+.curso-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.curso-info {
+  flex: 1;
+}
+
+.curso-nombre {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+}
+
+.curso-details {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.curso-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  min-width: 80px;
+}
+
+.stat-item.completado {
+  background: #d1fae5;
+}
+
+.stat-item.pendiente {
+  background: #fee2e2;
+}
+
+.stat-count {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-item.completado .stat-count {
+  color: #065f46;
+}
+
+.stat-item.pendiente .stat-count {
+  color: #991b1b;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.stat-item.completado .stat-label {
+  color: #047857;
+}
+
+.stat-item.pendiente .stat-label {
+  color: #b91c1c;
+}
+
+.sesiones-timeline {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+
+.sesion-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  min-width: 120px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.sesion-item.completado {
+  background: #d1fae5;
+}
+
+.sesion-item.pendiente {
+  background: #fee2e2;
+}
+
+.sesion-item.futuro {
+  background: #f3f4f6;
+}
+
+.sesion-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sesion-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.sesion-item.completado .sesion-dot {
+  background: #10b981;
+}
+
+.sesion-item.pendiente .sesion-dot {
+  background: #ef4444;
+}
+
+.sesion-item.futuro .sesion-dot {
+  background: #9ca3af;
+}
+
+.sesion-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sesion-fecha {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.sesion-estado {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .seguimiento-container {
+    padding: 24px 16px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .legend-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .curso-header {
+    flex-direction: column;
+  }
+
+  .curso-stats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
