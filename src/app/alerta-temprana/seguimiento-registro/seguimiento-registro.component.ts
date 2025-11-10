@@ -13,7 +13,8 @@ interface CarreraData {
 interface SesionAgrupada {
   cursoId: number;
   cursoNombre: string;
-  grupo: string;
+  grupoNombre: string;
+  claveAsignatura: string;
   docente: string;
   sesiones: SesionAsistencia[];
 }
@@ -100,7 +101,8 @@ export class SeguimientoRegistroComponent implements OnInit {
         agrupado.set(key, {
           cursoId: sesion.cursoId,
           cursoNombre: sesion.cursoNombre,
-          grupo: sesion.grupo,
+          grupoNombre: sesion.grupoNombre || 'Sin grupo',
+          claveAsignatura: sesion.claveAsignatura || sesion.grupo,
           docente: sesion.docente,
           sesiones: []
         });

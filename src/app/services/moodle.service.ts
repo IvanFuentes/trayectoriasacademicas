@@ -20,6 +20,8 @@ export interface SesionAsistencia {
   cursoId: number;
   cursoNombre: string;
   grupo: string;
+  grupoNombre?: string;
+  claveAsignatura?: string;
   docente: string;
   sesionId: number;
   fecha: string;

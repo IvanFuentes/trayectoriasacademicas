@@ -141,7 +141,7 @@ async function getCursos(client: Client, carreraId: number) {
   const result = [];
   for (const curso of cursos.rows) {
     const docente = await client.queryObject(
-      `SELECT DISTINCT u.id, u.firstname, u.lastname, u.email, u.username
+      `SELECT u.id, u.firstname, u.lastname, u.email, u.username, ra.roleid
        FROM tecnm_user u
        INNER JOIN tecnm_role_assignments ra ON ra.userid = u.id
        INNER JOIN tecnm_context ctx ON ctx.id = ra.contextid
@@ -150,7 +150,7 @@ async function getCursos(client: Client, carreraId: number) {
          AND ra.roleid IN (3, 4)
          AND u.deleted = 0
          AND u.suspended = 0
-         AND u.username !~ '^[0-9]+$'
+         AND NOT (u.username ~ '^[0-9]+$')
        ORDER BY ra.roleid, u.id
        LIMIT 1`,
       [(curso as any).id]
@@ -240,9 +240,14 @@ async function getSesionesAsistencia(client: Client, carreraId: number) {
               AND ra.roleid IN (3, 4)
               AND u.deleted = 0
               AND u.suspended = 0
-              AND u.username !~ '^[0-9]+$'
+              AND NOT (u.username ~ '^[0-9]+$')
             ORDER BY ra.roleid
             LIMIT 1) as docente,
+           (SELECT g.name
+            FROM tecnm_groups g
+            INNER JOIN tecnm_groups_members gm ON gm.groupid = g.id
+            WHERE g.courseid = c.id
+            LIMIT 1) as grupo_nombre,
            (SELECT COUNT(*) 
             FROM tecnm_attendance_log al 
             WHERE al.sessionid = atts.id) as asistencias_registradas
@@ -257,7 +262,8 @@ async function getSesionesAsistencia(client: Client, carreraId: number) {
   return result.rows.map((row: any) => ({
     cursoId: Number(row.curso_id),
     cursoNombre: row.curso_nombre,
-    grupo: row.grupo,
+    grupoNombre: row.grupo_nombre || "Sin grupo",
+    claveAsignatura: row.grupo,
     docente: row.docente || "No asignado",
     sesionId: Number(row.sesion_id),
     fecha: new Date(Number(row.sessdate) * 1000).toISOString().split("T")[0],
