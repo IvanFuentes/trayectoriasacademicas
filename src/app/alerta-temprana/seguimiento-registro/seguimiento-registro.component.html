@@ -7,15 +7,15 @@
   <div class="legend-container">
     <div class="legend-item">
       <span class="legend-dot completado"></span>
-      <span class="legend-text">Asistencia Registrada</span>
+      <span class="legend-text">Pase de Asistencia Registrada</span>
     </div>
     <div class="legend-item">
       <span class="legend-dot pendiente"></span>
-      <span class="legend-text">Pendiente de Registro</span>
+      <span class="legend-text">Asistencia Pendiente de Registro</span>
     </div>
     <div class="legend-item">
       <span class="legend-dot futuro"></span>
-      <span class="legend-text">Sesión Futura</span>
+      <span class="legend-text">Sesión de Asistencia Futura</span>
     </div>
   </div>
 
@@ -63,7 +63,7 @@
               <div class="curso-stats">
                 <div class="stat-item total">
                   <span class="stat-count">{{ curso.sesiones.length }}</span>
-                  <span class="stat-label">Total Sesiones</span>
+                  <span class="stat-label">Total de Sesiones</span>
                 </div>
                 <div class="stat-item completado">
                   <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'completado') }}</span>
@@ -71,7 +71,7 @@
                 </div>
                 <div class="stat-item pendiente">
                   <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'pendiente') }}</span>
-                  <span class="stat-label">Pendientes</span>
+                  <span class="stat-label">Asistencias Pendientes</span>
                 </div>
               </div>
             </div>
