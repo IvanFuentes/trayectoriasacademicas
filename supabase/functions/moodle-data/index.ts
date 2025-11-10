@@ -119,7 +119,7 @@ async function getCarreras(client: Client) {
   const result = await client.queryObject(`
     SELECT id, name
     FROM tecnm_course_categories
-    WHERE id NOT IN (2, 4, 8) AND parent = 0
+    WHERE id NOT IN (2, 4, 8)
     ORDER BY name
   `);
 
