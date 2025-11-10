@@ -157,18 +157,29 @@ async function getCursos(client: Client, carreraId: number) {
     );
 
     const attendance = await client.queryObject(
-      `SELECT id 
-       FROM tecnm_attendance 
+      `SELECT id
+       FROM tecnm_attendance
        WHERE course = $1
        LIMIT 1`,
       [(curso as any).id]
     );
 
+    const grupo = await client.queryObject(
+      `SELECT g.name
+       FROM tecnm_groups g
+       INNER JOIN tecnm_groups_members gm ON gm.groupid = g.id
+       WHERE g.courseid = $1
+       LIMIT 1`,
+      [(curso as any).id]
+    );
+
     const doc = docente.rows[0] as any;
+    const grp = grupo.rows[0] as any;
     result.push({
       id: Number((curso as any).id),
       nombre: (curso as any).fullname,
-      grupo: (curso as any).shortname,
+      clave: (curso as any).shortname,
+      grupo: grp?.name || "Sin grupo",
       docente: doc ? `${doc.firstname} ${doc.lastname}` : "No asignado",
       docenteEmail: doc?.email || "",
       estado: attendance.rows.length > 0 ? "configurado" : "pendiente",
@@ -279,27 +290,30 @@ async function getSesionesAsistencia(client: Client, carreraId: number) {
 
 async function getEstudiantesFaltas(client: Client, carreraId: number) {
   const result = await client.queryObject(
-    `SELECT 
+    `SELECT
            u.id,
            u.firstname || ' ' || u.lastname as nombre,
            u.email,
            u.idnumber as matricula,
            c.fullname as curso,
            c.id as curso_id,
-           COUNT(CASE WHEN al.statusid IN (1, 2) THEN 1 END) as total_faltas
+           COUNT(CASE WHEN al.statusset LIKE '%A%' THEN 1 END) as total_faltas,
+           COUNT(al.id) as total_registros
      FROM tecnm_user u
      INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
      INNER JOIN tecnm_enrol e ON ue.enrolid = e.id
      INNER JOIN tecnm_course c ON e.courseid = c.id
      INNER JOIN tecnm_attendance att ON att.course = c.id
      INNER JOIN tecnm_attendance_sessions atts ON atts.attendanceid = att.id
-     LEFT JOIN tecnm_attendance_log al ON al.sessionid = atts.id AND al.studentid = u.id
+     INNER JOIN tecnm_attendance_log al ON al.sessionid = atts.id AND al.studentid = u.id
      WHERE c.category = $1
        AND ue.status = 0
        AND u.deleted = 0
+       AND u.suspended = 0
        AND c.visible = 1
+       AND atts.sessdate < EXTRACT(EPOCH FROM NOW())
      GROUP BY u.id, u.firstname, u.lastname, u.email, u.idnumber, c.fullname, c.id
-     HAVING COUNT(CASE WHEN al.statusid IN (1, 2) THEN 1 END) >= 1
+     HAVING COUNT(CASE WHEN al.statusset LIKE '%A%' THEN 1 END) >= 3
      ORDER BY total_faltas DESC, u.firstname`,
     [carreraId]
   );

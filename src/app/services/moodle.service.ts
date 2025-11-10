@@ -10,6 +10,7 @@ export interface Carrera {
 export interface Curso {
   id: number;
   nombre: string;
+  clave: string;
   grupo: string;
   docente: string;
   docenteEmail: string;
