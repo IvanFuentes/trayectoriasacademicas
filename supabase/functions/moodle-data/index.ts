@@ -7,14 +7,42 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const pool = new Pool({
-  host: Deno.env.get("MOODLE_DB_HOST"),
-  port: parseInt(Deno.env.get("MOODLE_DB_PORT") || "5432"),
-  user: Deno.env.get("MOODLE_DB_USER"),
-  password: Deno.env.get("MOODLE_DB_PASSWORD"),
-  database: Deno.env.get("MOODLE_DB_NAME"),
-  ssl: true,
-});
+let pool: Pool | null = null;
+
+function getPool() {
+  if (!pool) {
+    const host = Deno.env.get("MOODLE_DB_HOST");
+    const port = Deno.env.get("MOODLE_DB_PORT") || "5432";
+    const user = Deno.env.get("MOODLE_DB_USER");
+    const password = Deno.env.get("MOODLE_DB_PASSWORD");
+    const database = Deno.env.get("MOODLE_DB_NAME");
+
+    console.log("Configuración de conexión:", {
+      host: host || "NO CONFIGURADO",
+      port,
+      user: user || "NO CONFIGURADO",
+      database: database || "NO CONFIGURADO",
+      password: password ? "CONFIGURADO" : "NO CONFIGURADO"
+    });
+
+    if (!host || !user || !password || !database) {
+      throw new Error("Faltan variables de entorno de Moodle. Configura MOODLE_DB_HOST, MOODLE_DB_USER, MOODLE_DB_PASSWORD y MOODLE_DB_NAME en Supabase Dashboard.");
+    }
+
+    pool = new Pool({
+      host,
+      port: parseInt(port),
+      user,
+      password,
+      database,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+    });
+  }
+  return pool;
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -26,79 +54,105 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
-    const endpoint = url.pathname.split("/").pop();
     const searchParams = url.searchParams;
+    const action = searchParams.get("action");
+
+    console.log("Solicitud recibida - Action:", action);
 
     let data: unknown;
 
-    if (endpoint === "moodle-data" && req.method === "GET") {
-      const action = searchParams.get("action");
-
+    if (req.method === "GET") {
       if (action === "carreras") {
         data = await getCarreras();
       } else if (action === "cursos") {
         const carreraId = searchParams.get("carrera_id");
-        data = await getCursos(parseInt(carreraId || "0"));
+        if (!carreraId) {
+          throw new Error("Falta parámetro carrera_id");
+        }
+        data = await getCursos(parseInt(carreraId));
       } else if (action === "docentes") {
         data = await getDocentes();
       } else if (action === "asistencias-config") {
         const cursoId = searchParams.get("curso_id");
-        data = await getAsistenciasConfig(parseInt(cursoId || "0"));
+        if (!cursoId) {
+          throw new Error("Falta parámetro curso_id");
+        }
+        data = await getAsistenciasConfig(parseInt(cursoId));
       } else if (action === "sesiones-asistencia") {
         const carreraId = searchParams.get("carrera_id");
-        data = await getSesionesAsistencia(parseInt(carreraId || "0"));
+        if (!carreraId) {
+          throw new Error("Falta parámetro carrera_id");
+        }
+        data = await getSesionesAsistencia(parseInt(carreraId));
       } else if (action === "estudiantes-faltas") {
         const carreraId = searchParams.get("carrera_id");
-        data = await getEstudiantesFaltas(parseInt(carreraId || "0"));
+        if (!carreraId) {
+          throw new Error("Falta parámetro carrera_id");
+        }
+        data = await getEstudiantesFaltas(parseInt(carreraId));
       } else {
         return new Response(
-          JSON.stringify({ error: "Acción no válida" }),
+          JSON.stringify({ error: "Acción no válida. Acciones disponibles: carreras, cursos, docentes, asistencias-config, sesiones-asistencia, estudiantes-faltas" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     } else {
       return new Response(
-        JSON.stringify({ error: "Método no permitido" }),
+        JSON.stringify({ error: "Método no permitido. Solo se permite GET." }),
         { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    console.log("Respuesta exitosa para action:", action);
+
     return new Response(JSON.stringify(data), {
+      status: 200,
       headers: {
         ...corsHeaders,
         "Content-Type": "application/json",
       },
     });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error en Edge Function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message || "Error desconocido",
+        details: error.stack
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
 
 async function getCarreras() {
+  const pool = getPool();
   const client = await pool.connect();
   try {
+    console.log("Ejecutando query: getCarreras");
     const result = await client.query(
       `SELECT id, name 
        FROM tecnm_course_categories 
        WHERE id NOT IN (2, 4, 8) AND parent = 0
        ORDER BY name`
     );
+    console.log("Carreras encontradas:", result.rows.length);
     return result.rows.map((row: { id: number; name: string }) => ({
       id: row.id,
       nombre: row.name,
     }));
+  } catch (error) {
+    console.error("Error en getCarreras:", error);
+    throw error;
   } finally {
     client.release();
   }
 }
 
 async function getCursos(carreraId: number) {
+  const pool = getPool();
   const client = await pool.connect();
   try {
+    console.log("Ejecutando query: getCursos para carrera", carreraId);
     const result = await client.query(
       `SELECT id, fullname, shortname, category 
        FROM tecnm_course 
@@ -106,6 +160,8 @@ async function getCursos(carreraId: number) {
        ORDER BY fullname`,
       [carreraId]
     );
+
+    console.log("Cursos encontrados:", result.rows.length);
 
     const cursos = [];
     for (const curso of result.rows) {
@@ -145,14 +201,19 @@ async function getCursos(carreraId: number) {
     }
 
     return cursos;
+  } catch (error) {
+    console.error("Error en getCursos:", error);
+    throw error;
   } finally {
     client.release();
   }
 }
 
 async function getDocentes() {
+  const pool = getPool();
   const client = await pool.connect();
   try {
+    console.log("Ejecutando query: getDocentes");
     const result = await client.query(
       `SELECT DISTINCT 
               u.id, 
@@ -171,6 +232,7 @@ async function getDocentes() {
        HAVING COUNT(DISTINCT e.courseid) > 0
        ORDER BY u.firstname, u.lastname`
     );
+    console.log("Docentes encontrados:", result.rows.length);
     return result.rows.map((row: any) => ({
       id: row.id,
       nombre: `${row.firstname} ${row.lastname}`,
@@ -178,14 +240,19 @@ async function getDocentes() {
       email: row.email,
       cursosCount: parseInt(row.cursos_count),
     }));
+  } catch (error) {
+    console.error("Error en getDocentes:", error);
+    throw error;
   } finally {
     client.release();
   }
 }
 
 async function getAsistenciasConfig(cursoId: number) {
+  const pool = getPool();
   const client = await pool.connect();
   try {
+    console.log("Ejecutando query: getAsistenciasConfig para curso", cursoId);
     const result = await client.query(
       `SELECT id 
        FROM tecnm_attendance 
@@ -197,14 +264,19 @@ async function getAsistenciasConfig(cursoId: number) {
       cursoId,
       configurado: result.rows.length > 0,
     };
+  } catch (error) {
+    console.error("Error en getAsistenciasConfig:", error);
+    throw error;
   } finally {
     client.release();
   }
 }
 
 async function getSesionesAsistencia(carreraId: number) {
+  const pool = getPool();
   const client = await pool.connect();
   try {
+    console.log("Ejecutando query: getSesionesAsistencia para carrera", carreraId);
     const result = await client.query(
       `SELECT 
               c.id as curso_id,
@@ -230,6 +302,8 @@ async function getSesionesAsistencia(carreraId: number) {
       [carreraId]
     );
     
+    console.log("Sesiones encontradas:", result.rows.length);
+    
     return result.rows.map((row: any) => ({
       cursoId: row.curso_id,
       cursoNombre: row.curso_nombre,
@@ -245,14 +319,19 @@ async function getSesionesAsistencia(carreraId: number) {
             ? "completado"
             : "pendiente",
     }));
+  } catch (error) {
+    console.error("Error en getSesionesAsistencia:", error);
+    throw error;
   } finally {
     client.release();
   }
 }
 
 async function getEstudiantesFaltas(carreraId: number) {
+  const pool = getPool();
   const client = await pool.connect();
   try {
+    console.log("Ejecutando query: getEstudiantesFaltas para carrera", carreraId);
     const result = await client.query(
       `SELECT 
               u.id,
@@ -279,6 +358,8 @@ async function getEstudiantesFaltas(carreraId: number) {
       [carreraId]
     );
     
+    console.log("Estudiantes con faltas encontrados:", result.rows.length);
+    
     return result.rows.map((row: any) => ({
       id: row.id,
       nombre: row.nombre,
@@ -288,6 +369,9 @@ async function getEstudiantesFaltas(carreraId: number) {
       cursoId: row.curso_id,
       faltas: parseInt(row.total_faltas),
     }));
+  } catch (error) {
+    console.error("Error en getEstudiantesFaltas:", error);
+    throw error;
   } finally {
     client.release();
   }

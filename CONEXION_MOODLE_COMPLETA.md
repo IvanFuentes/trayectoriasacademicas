@@ -7,24 +7,54 @@
 ✅ **Componentes actualizados**: Gestión de Asistencias, Seguimiento del Registro, Prevención y Atención
 ✅ **Build exitoso**: La aplicación compila correctamente
 
-## Paso Crítico: Configurar Variables de Entorno
+## ⚠️ PASO CRÍTICO - CONFIGURAR VARIABLES DE ENTORNO ⚠️
 
-Para que la conexión funcione, **DEBES** configurar las siguientes variables de entorno en el Dashboard de Supabase:
+**EL ERROR "Error al cargar las carreras" APARECE PORQUE LAS VARIABLES DE ENTORNO NO ESTÁN CONFIGURADAS.**
 
-### En Supabase Dashboard:
+### Instrucciones Detalladas para Supabase Dashboard:
 
-1. Ir a: **Project Settings** → **Edge Functions** → **Secrets**
-2. Agregar las siguientes secrets:
+**Paso 1**: Abre https://supabase.com/dashboard y selecciona tu proyecto
 
-| Nombre | Valor |
-|--------|-------|
-| `MOODLE_DB_HOST` | `acad.itsescarcega.edu.mx` |
-| `MOODLE_DB_PORT` | `5432` |
-| `MOODLE_DB_USER` | `acaditsescarcega_ivan` |
-| `MOODLE_DB_PASSWORD` | `BIrKehE2xDK3^4Y.` |
-| `MOODLE_DB_NAME` | `acaditsescarcega_moodle` |
+**Paso 2**: En el menú lateral izquierdo, haz clic en el ícono de **engranaje** (Project Settings)
 
-**IMPORTANTE**: Después de agregar los secrets, debes redesplegar la Edge Function para que tome los nuevos valores.
+**Paso 3**: En Project Settings, busca la sección **Edge Functions** en el menú lateral
+
+**Paso 4**: Haz clic en la pestaña **"Secrets"**
+
+**Paso 5**: Haz clic en **"Add a new secret"** y agrega CADA UNA de estas 5 variables:
+
+### Variables a Configurar (copia y pega exactamente):
+
+```
+Nombre: MOODLE_DB_HOST
+Valor: acad.itsescarcega.edu.mx
+```
+
+```
+Nombre: MOODLE_DB_PORT
+Valor: 5432
+```
+
+```
+Nombre: MOODLE_DB_USER
+Valor: acaditsescarcega_ivan
+```
+
+```
+Nombre: MOODLE_DB_PASSWORD
+Valor: BIrKehE2xDK3^4Y.
+```
+
+```
+Nombre: MOODLE_DB_NAME
+Valor: acaditsescarcega_moodle
+```
+
+**Paso 6**: Después de agregar las 5 variables, recarga tu aplicación (F5)
+
+### Verificación:
+✅ Si configuraste todo correctamente, al ir a "Gestión de Asistencias" verás las carreras reales de Moodle
+❌ Si aún ves el error, verifica que los nombres de las variables estén exactamente como se muestra (distinguen mayúsculas/minúsculas)
 
 ## Estructura de la Base de Datos Moodle
 
