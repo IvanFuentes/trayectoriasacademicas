@@ -82,7 +82,8 @@ async function getCarreras() {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT id, name FROM tecnm_course_categories 
+      `SELECT id, name 
+       FROM tecnm_course_categories 
        WHERE id NOT IN (2, 4, 8) AND parent = 0
        ORDER BY name`
     );
@@ -109,18 +110,25 @@ async function getCursos(carreraId: number) {
     const cursos = [];
     for (const curso of result.rows) {
       const docenteResult = await client.query(
-        `SELECT u.id, u.firstname, u.lastname, u.email 
+        `SELECT DISTINCT u.id, u.firstname, u.lastname, u.email, u.username
          FROM tecnm_user u 
-         JOIN tecnm_user_enrolments ue ON u.id = ue.userid 
-         JOIN tecnm_enrol e ON ue.enrolid = e.id 
-         WHERE e.courseid = $1 AND ue.status = 0
+         INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid 
+         INNER JOIN tecnm_enrol e ON ue.enrolid = e.id 
+         WHERE e.courseid = $1 
+           AND ue.status = 0
+           AND e.enrol = 'manual'
+         ORDER BY u.id
          LIMIT 1`,
         [curso.id]
       );
 
       const docente = docenteResult.rows[0];
+      
       const attendanceResult = await client.query(
-        `SELECT id FROM tecnm_attendance WHERE course = $1 LIMIT 1`,
+        `SELECT id 
+         FROM tecnm_attendance 
+         WHERE course = $1 
+         LIMIT 1`,
         [curso.id]
       );
 
@@ -146,20 +154,29 @@ async function getDocentes() {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT DISTINCT u.id, u.firstname, u.lastname, u.email, 
+      `SELECT DISTINCT 
+              u.id, 
+              u.firstname, 
+              u.lastname, 
+              u.email,
+              u.username,
               COUNT(DISTINCT e.courseid) as cursos_count 
        FROM tecnm_user u 
-       JOIN tecnm_user_enrolments ue ON u.id = ue.userid 
-       JOIN tecnm_enrol e ON ue.enrolid = e.id 
-       WHERE ue.status = 0 AND u.id != 1
-       GROUP BY u.id, u.firstname, u.lastname, u.email
+       INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid 
+       INNER JOIN tecnm_enrol e ON ue.enrolid = e.id 
+       WHERE ue.status = 0 
+         AND u.deleted = 0
+         AND u.suspended = 0
+       GROUP BY u.id, u.firstname, u.lastname, u.email, u.username
+       HAVING COUNT(DISTINCT e.courseid) > 0
        ORDER BY u.firstname, u.lastname`
     );
     return result.rows.map((row: any) => ({
       id: row.id,
       nombre: `${row.firstname} ${row.lastname}`,
+      username: row.username,
       email: row.email,
-      cursosCount: row.cursos_count,
+      cursosCount: parseInt(row.cursos_count),
     }));
   } finally {
     client.release();
@@ -170,7 +187,10 @@ async function getAsistenciasConfig(cursoId: number) {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT id FROM tecnm_attendance WHERE course = $1 LIMIT 1`,
+      `SELECT id 
+       FROM tecnm_attendance 
+       WHERE course = $1 
+       LIMIT 1`,
       [cursoId]
     );
     return {
@@ -186,42 +206,42 @@ async function getSesionesAsistencia(carreraId: number) {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT DISTINCT 
+      `SELECT 
               c.id as curso_id,
               c.fullname as curso_nombre,
               c.shortname as grupo,
-              u.firstname || ' ' || u.lastname as docente,
               att.id as attendance_id,
               atts.id as sesion_id,
               atts.sessdate,
-              COUNT(ars.id) as asistencias_registradas
+              (SELECT u.firstname || ' ' || u.lastname 
+               FROM tecnm_user u
+               INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
+               INNER JOIN tecnm_enrol e ON ue.enrolid = e.id
+               WHERE e.courseid = c.id AND ue.status = 0
+               LIMIT 1) as docente,
+              (SELECT COUNT(*) 
+               FROM tecnm_attendance_log al 
+               WHERE al.sessionid = atts.id) as asistencias_registradas
        FROM tecnm_course c
-       JOIN tecnm_category cat ON c.category = cat.id
-       JOIN tecnm_attendance att ON att.course = c.id
-       JOIN tecnm_attendance_sessions atts ON atts.attendanceid = att.id
-       LEFT JOIN tecnm_attendance_log ars ON ars.sessionid = atts.id
-       JOIN tecnm_user_enrolments ue ON ue.enrolid IN (
-         SELECT id FROM tecnm_enrol WHERE courseid = c.id
-       )
-       JOIN tecnm_user u ON u.id = ue.userid AND ue.status = 0
-       WHERE c.category = $1
-       GROUP BY c.id, c.fullname, c.shortname, u.firstname, u.lastname, 
-                att.id, atts.id, atts.sessdate
-       ORDER BY atts.sessdate DESC`,
+       INNER JOIN tecnm_attendance att ON att.course = c.id
+       INNER JOIN tecnm_attendance_sessions atts ON atts.attendanceid = att.id
+       WHERE c.category = $1 AND c.visible = 1
+       ORDER BY c.fullname, atts.sessdate DESC`,
       [carreraId]
     );
+    
     return result.rows.map((row: any) => ({
       cursoId: row.curso_id,
       cursoNombre: row.curso_nombre,
       grupo: row.grupo,
-      docente: row.docente,
+      docente: row.docente || "No asignado",
       sesionId: row.sesion_id,
       fecha: new Date(row.sessdate * 1000).toISOString().split("T")[0],
-      asistenciasRegistradas: row.asistencias_registradas,
+      asistenciasRegistradas: parseInt(row.asistencias_registradas),
       estado:
         row.sessdate * 1000 > Date.now()
           ? "futuro"
-          : row.asistencias_registradas > 0
+          : parseInt(row.asistencias_registradas) > 0
             ? "completado"
             : "pendiente",
     }));
@@ -234,32 +254,31 @@ async function getEstudiantesFaltas(carreraId: number) {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      `SELECT DISTINCT
+      `SELECT 
               u.id,
               u.firstname || ' ' || u.lastname as nombre,
               u.email,
               u.idnumber as matricula,
               c.fullname as curso,
               c.id as curso_id,
-              cat.id as carrera_id,
-              COUNT(ars.id) as total_faltas
+              COUNT(CASE WHEN al.statusid IN (1, 2) THEN 1 END) as total_faltas
        FROM tecnm_user u
-       JOIN tecnm_user_enrolments ue ON u.id = ue.userid AND ue.status = 0
-       JOIN tecnm_enrol e ON ue.enrolid = e.id
-       JOIN tecnm_course c ON e.courseid = c.id
-       JOIN tecnm_category cat ON c.category = cat.id
-       LEFT JOIN tecnm_attendance att ON att.course = c.id
-       LEFT JOIN tecnm_attendance_log ars ON ars.userid = u.id AND ars.statusid = 0
-              AND ars.sessionid IN (
-                SELECT id FROM tecnm_attendance_sessions WHERE attendanceid = att.id
-              )
-       WHERE cat.id = $1 AND ars.id IS NOT NULL
-       GROUP BY u.id, u.firstname, u.lastname, u.email, u.idnumber, 
-                c.fullname, c.id, cat.id
-       HAVING COUNT(ars.id) >= 1
+       INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
+       INNER JOIN tecnm_enrol e ON ue.enrolid = e.id
+       INNER JOIN tecnm_course c ON e.courseid = c.id
+       INNER JOIN tecnm_attendance att ON att.course = c.id
+       INNER JOIN tecnm_attendance_sessions atts ON atts.attendanceid = att.id
+       LEFT JOIN tecnm_attendance_log al ON al.sessionid = atts.id AND al.studentid = u.id
+       WHERE c.category = $1 
+         AND ue.status = 0
+         AND u.deleted = 0
+         AND c.visible = 1
+       GROUP BY u.id, u.firstname, u.lastname, u.email, u.idnumber, c.fullname, c.id
+       HAVING COUNT(CASE WHEN al.statusid IN (1, 2) THEN 1 END) >= 1
        ORDER BY total_faltas DESC, u.firstname`,
       [carreraId]
     );
+    
     return result.rows.map((row: any) => ({
       id: row.id,
       nombre: row.nombre,
@@ -267,7 +286,7 @@ async function getEstudiantesFaltas(carreraId: number) {
       email: row.email,
       cursoNombre: row.curso,
       cursoId: row.curso_id,
-      faltas: row.total_faltas,
+      faltas: parseInt(row.total_faltas),
     }));
   } finally {
     client.release();
