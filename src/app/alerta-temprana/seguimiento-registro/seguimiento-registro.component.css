@@ -206,6 +206,10 @@
   min-width: 80px;
 }
 
+.stat-item.total {
+  background: #e5e7eb;
+}
+
 .stat-item.completado {
   background: #d1fae5;
 }
@@ -220,6 +224,10 @@
   line-height: 1;
 }
 
+.stat-item.total .stat-count {
+  color: #374151;
+}
+
 .stat-item.completado .stat-count {
   color: #065f46;
 }
@@ -232,6 +240,10 @@
   font-size: 12px;
   font-weight: 600;
   margin-top: 4px;
+}
+
+.stat-item.total .stat-label {
+  color: #4b5563;
 }
 
 .stat-item.completado .stat-label {

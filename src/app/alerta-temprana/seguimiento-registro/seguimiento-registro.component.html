@@ -61,6 +61,10 @@
                 <p class="curso-details">{{ curso.grupo }} - {{ curso.docente }}</p>
               </div>
               <div class="curso-stats">
+                <div class="stat-item total">
+                  <span class="stat-count">{{ curso.sesiones.length }}</span>
+                  <span class="stat-label">Total Sesiones</span>
+                </div>
                 <div class="stat-item completado">
                   <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'completado') }}</span>
                   <span class="stat-label">Registradas</span>

@@ -142,13 +142,16 @@ async function getCursos(client: Client, carreraId: number) {
   for (const curso of cursos.rows) {
     const docente = await client.queryObject(
       `SELECT DISTINCT u.id, u.firstname, u.lastname, u.email, u.username
-       FROM tecnm_user u 
-       INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid 
-       INNER JOIN tecnm_enrol e ON ue.enrolid = e.id 
-       WHERE e.courseid = $1
-         AND ue.status = 0
-         AND e.enrol = 'manual'
-       ORDER BY u.id
+       FROM tecnm_user u
+       INNER JOIN tecnm_role_assignments ra ON ra.userid = u.id
+       INNER JOIN tecnm_context ctx ON ctx.id = ra.contextid
+       WHERE ctx.instanceid = $1
+         AND ctx.contextlevel = 50
+         AND ra.roleid IN (3, 4)
+         AND u.deleted = 0
+         AND u.suspended = 0
+         AND u.username !~ '^[0-9]+$'
+       ORDER BY ra.roleid, u.id
        LIMIT 1`,
       [(curso as any).id]
     );
@@ -228,11 +231,17 @@ async function getSesionesAsistencia(client: Client, carreraId: number) {
            att.id as attendance_id,
            atts.id as sesion_id,
            atts.sessdate,
-           (SELECT u.firstname || ' ' || u.lastname 
+           (SELECT u.firstname || ' ' || u.lastname
             FROM tecnm_user u
-            INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
-            INNER JOIN tecnm_enrol e ON ue.enrolid = e.id
-            WHERE e.courseid = c.id AND ue.status = 0
+            INNER JOIN tecnm_role_assignments ra ON ra.userid = u.id
+            INNER JOIN tecnm_context ctx ON ctx.id = ra.contextid
+            WHERE ctx.instanceid = c.id
+              AND ctx.contextlevel = 50
+              AND ra.roleid IN (3, 4)
+              AND u.deleted = 0
+              AND u.suspended = 0
+              AND u.username !~ '^[0-9]+$'
+            ORDER BY ra.roleid
             LIMIT 1) as docente,
            (SELECT COUNT(*) 
             FROM tecnm_attendance_log al 
