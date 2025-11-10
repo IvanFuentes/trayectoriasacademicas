@@ -19,7 +19,15 @@
     </div>
   </div>
 
-  <div class="carreras-list">
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="loading-message">
+    Cargando carreras...
+  </div>
+
+  <div class="carreras-list" *ngIf="!isLoading">
     <div
       *ngFor="let carrera of carreras"
       class="carrera-item"
@@ -35,6 +43,14 @@
       </button>
 
       <div class="estudiantes-container" *ngIf="selectedCarrera === carrera.id">
+        <div *ngIf="carrera.loading" class="loading-message">
+          Cargando estudiantes...
+        </div>
+
+        <div *ngIf="carrera.error" class="error-message">
+          {{ carrera.error }}
+        </div>
+
         <div
           *ngFor="let estudiante of carrera.estudiantes"
           class="estudiante-card"
@@ -43,12 +59,16 @@
         >
           <div class="estudiante-info">
             <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
-            <p class="estudiante-curso">{{ estudiante.curso }}</p>
+            <p class="estudiante-curso">{{ estudiante.cursoNombre }}</p>
           </div>
           <div class="faltas-badge" [class]="getFaltasClass(estudiante.faltas)">
             <span class="faltas-numero">{{ estudiante.faltas }}</span>
             <span class="faltas-texto">faltas</span>
           </div>
+        </div>
+
+        <div *ngIf="!carrera.loading && !carrera.error && carrera.estudiantes.length === 0" class="empty-message">
+          No hay estudiantes con faltas en esta carrera
         </div>
       </div>
     </div>
@@ -73,18 +93,13 @@
       </div>
 
       <div class="info-row">
-        <span class="info-label">Carrera:</span>
-        <span class="info-value">{{ selectedEstudiante.carrera }}</span>
-      </div>
-
-      <div class="info-row">
         <span class="info-label">Correo Electrónico:</span>
         <span class="info-value">{{ selectedEstudiante.email }}</span>
       </div>
 
       <div class="info-row">
         <span class="info-label">Curso:</span>
-        <span class="info-value">{{ selectedEstudiante.curso }}</span>
+        <span class="info-value">{{ selectedEstudiante.cursoNombre }}</span>
       </div>
 
       <div class="info-row highlight">

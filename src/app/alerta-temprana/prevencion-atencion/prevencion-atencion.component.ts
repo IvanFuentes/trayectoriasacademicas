@@ -1,20 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MoodleService, Carrera, EstudianteFaltas } from '../../services/moodle.service';
 
-interface Estudiante {
-  id: string;
+interface CarreraData {
+  id: number;
   nombre: string;
-  matricula: string;
-  carrera: string;
-  email: string;
-  curso: string;
-  faltas: number;
-}
-
-interface CarreraPrevencion {
-  id: string;
-  nombre: string;
-  estudiantes: Estudiante[];
+  estudiantes: EstudianteFaltas[];
+  loading?: boolean;
+  error?: string;
 }
 
 @Component({
@@ -24,109 +17,71 @@ interface CarreraPrevencion {
   templateUrl: './prevencion-atencion.component.html',
   styleUrls: ['./prevencion-atencion.component.css']
 })
-export class PrevencionAtencionComponent {
-  carreras: CarreraPrevencion[] = [
-    {
-      id: 'sistemas',
-      nombre: 'Ingeniería en Sistemas Computacionales',
-      estudiantes: [
-        {
-          id: '1',
-          nombre: 'Ana María González Pérez',
-          matricula: '120204010',
-          carrera: 'Ingeniería en Sistemas Computacionales',
-          email: 'ana.gonzalez@escarcega.tecnm.mx',
-          curso: 'Programación Orientada a Objetos',
-          faltas: 2
-        },
-        {
-          id: '2',
-          nombre: 'Carlos Alberto Martínez López',
-          matricula: 'S20005678',
-          carrera: 'Ingeniería en Sistemas Computacionales',
-          email: 'carlos.martinez@itssnp.edu.mx',
-          curso: 'Administración de Base de Datos',
-          faltas: 4
-        },
-        {
-          id: '3',
-          nombre: 'María Elena Ramírez Torres',
-          matricula: 'S21002345',
-          carrera: 'Ingeniería en Sistemas Computacionales',
-          email: 'maria.ramirez@itssnp.edu.mx',
-          curso: 'Programación Web',
-          faltas: 6
-        }
-      ]
-    },
-    {
-      id: 'ferroviaria',
-      nombre: 'Ingeniería Ferroviaria',
-      estudiantes: [
-        {
-          id: '4',
-          nombre: 'José Luis Hernández García',
-          matricula: 'F21003456',
-          carrera: 'Ingeniería Ferroviaria',
-          email: 'jose.hernandez@itssnp.edu.mx',
-          curso: 'Sistemas de Señalización',
-          faltas: 3
-        },
-        {
-          id: '5',
-          nombre: 'Laura Patricia Sánchez Ruiz',
-          matricula: 'F20007890',
-          carrera: 'Ingeniería Ferroviaria',
-          email: 'laura.sanchez@itssnp.edu.mx',
-          curso: 'Infraestructura Ferroviaria',
-          faltas: 7
-        }
-      ]
-    },
-    {
-      id: 'animacion',
-      nombre: 'Ingeniería en Animación Digital y Efectos Visuales',
-      estudiantes: [
-        {
-          id: '6',
-          nombre: 'Diego Fernando Morales Castro',
-          matricula: 'A21004567',
-          carrera: 'Ingeniería en Animación Digital y Efectos Visuales',
-          email: 'diego.morales@itssnp.edu.mx',
-          curso: 'Modelado 3D',
-          faltas: 1
-        },
-        {
-          id: '7',
-          nombre: 'Carmen Beatriz Torres Díaz',
-          matricula: 'A20008901',
-          carrera: 'Ingeniería en Animación Digital y Efectos Visuales',
-          email: 'carmen.torres@itssnp.edu.mx',
-          curso: 'Animación de Personajes',
-          faltas: 5
-        },
-        {
-          id: '8',
-          nombre: 'Roberto Alejandro Flores Vega',
-          matricula: 'A21005678',
-          carrera: 'Ingeniería en Animación Digital y Efectos Visuales',
-          email: 'roberto.flores@itssnp.edu.mx',
-          curso: 'Efectos Visuales',
-          faltas: 8
-        }
-      ]
-    }
-  ];
-
-  selectedCarrera: string | null = null;
-  selectedEstudiante: Estudiante | null = null;
+export class PrevencionAtencionComponent implements OnInit {
+  carreras: CarreraData[] = [];
+  selectedCarrera: number | null = null;
+  selectedEstudiante: EstudianteFaltas | null = null;
   showModal: boolean = false;
+  isLoading: boolean = true;
+  errorMessage: string = '';
 
-  selectCarrera(carreraId: string): void {
-    this.selectedCarrera = this.selectedCarrera === carreraId ? null : carreraId;
+  constructor(private moodleService: MoodleService) {}
+
+  ngOnInit(): void {
+    this.loadCarreras();
   }
 
-  getSelectedCarrera(): CarreraPrevencion | undefined {
+  loadCarreras(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.moodleService.getCarreras().subscribe({
+      next: (carreras: Carrera[]) => {
+        this.carreras = carreras.map(carrera => ({
+          id: carrera.id,
+          nombre: carrera.nombre,
+          estudiantes: [],
+          loading: false
+        }));
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading carreras:', error);
+        this.errorMessage = 'Error al cargar las carreras. Por favor, intente de nuevo.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  selectCarrera(carreraId: number): void {
+    if (this.selectedCarrera === carreraId) {
+      this.selectedCarrera = null;
+    } else {
+      this.selectedCarrera = carreraId;
+      this.loadEstudiantes(carreraId);
+    }
+  }
+
+  loadEstudiantes(carreraId: number): void {
+    const carrera = this.carreras.find(c => c.id === carreraId);
+    if (carrera) {
+      carrera.loading = true;
+
+      this.moodleService.getEstudiantesFaltas(carreraId).subscribe({
+        next: (estudiantes: EstudianteFaltas[]) => {
+          carrera.estudiantes = estudiantes;
+          carrera.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading estudiantes:', error);
+          carrera.error = 'Error al cargar estudiantes con faltas';
+          carrera.loading = false;
+        }
+      });
+    }
+  }
+
+  getSelectedCarrera(): CarreraData | undefined {
     return this.carreras.find(c => c.id === this.selectedCarrera);
   }
 
@@ -136,7 +91,7 @@ export class PrevencionAtencionComponent {
     return 'alerta';
   }
 
-  openModal(estudiante: Estudiante): void {
+  openModal(estudiante: EstudianteFaltas): void {
     this.selectedEstudiante = estudiante;
     this.showModal = true;
   }

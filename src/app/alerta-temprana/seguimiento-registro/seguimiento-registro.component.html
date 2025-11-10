@@ -19,7 +19,15 @@
     </div>
   </div>
 
-  <div class="carreras-list">
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="loading-message">
+    Cargando carreras...
+  </div>
+
+  <div class="carreras-list" *ngIf="!isLoading">
     <div
       *ngFor="let carrera of carreras"
       class="carrera-item"
@@ -34,48 +42,62 @@
       </button>
 
       <div class="cursos-container" *ngIf="selectedCarrera === carrera.id">
-        <div
-          *ngFor="let curso of carrera.cursos"
-          class="curso-card"
-        >
-          <div class="curso-header">
-            <div class="curso-info">
-              <h3 class="curso-nombre">{{ curso.nombre }}</h3>
-              <p class="curso-details">{{ curso.grupo }} - {{ curso.docente }}</p>
-            </div>
-            <div class="curso-stats">
-              <div class="stat-item completado">
-                <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'completado') }}</span>
-                <span class="stat-label">Registradas</span>
-              </div>
-              <div class="stat-item pendiente">
-                <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'pendiente') }}</span>
-                <span class="stat-label">Pendientes</span>
-              </div>
-            </div>
-          </div>
+        <div *ngIf="carrera.loading" class="loading-message">
+          Cargando sesiones de asistencia...
+        </div>
 
-          <div class="sesiones-timeline">
-            <div
-              *ngFor="let sesion of curso.sesiones"
-              class="sesion-item"
-              [class.completado]="sesion.estado === 'completado'"
-              [class.pendiente]="sesion.estado === 'pendiente'"
-              [class.futuro]="sesion.estado === 'futuro'"
-            >
-              <div class="sesion-dot"></div>
-              <div class="sesion-info">
-                <span class="sesion-fecha">{{ sesion.fecha }}</span>
-                <span class="sesion-estado">
-                  {{
-                    sesion.estado === 'completado' ? 'Registrada' :
-                    sesion.estado === 'pendiente' ? 'Pendiente' :
-                    'Programada'
-                  }}
-                </span>
+        <div *ngIf="carrera.error" class="error-message">
+          {{ carrera.error }}
+        </div>
+
+        <div *ngIf="!carrera.loading && !carrera.error && carrera.sesiones.length > 0">
+          <div
+            *ngFor="let curso of agruparSesiones(carrera.sesiones)"
+            class="curso-card"
+          >
+            <div class="curso-header">
+              <div class="curso-info">
+                <h3 class="curso-nombre">{{ curso.cursoNombre }}</h3>
+                <p class="curso-details">{{ curso.grupo }} - {{ curso.docente }}</p>
+              </div>
+              <div class="curso-stats">
+                <div class="stat-item completado">
+                  <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'completado') }}</span>
+                  <span class="stat-label">Registradas</span>
+                </div>
+                <div class="stat-item pendiente">
+                  <span class="stat-count">{{ getEstadoCount(curso.sesiones, 'pendiente') }}</span>
+                  <span class="stat-label">Pendientes</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sesiones-timeline">
+              <div
+                *ngFor="let sesion of curso.sesiones"
+                class="sesion-item"
+                [class.completado]="sesion.estado === 'completado'"
+                [class.pendiente]="sesion.estado === 'pendiente'"
+                [class.futuro]="sesion.estado === 'futuro'"
+              >
+                <div class="sesion-dot"></div>
+                <div class="sesion-info">
+                  <span class="sesion-fecha">{{ sesion.fecha }}</span>
+                  <span class="sesion-estado">
+                    {{
+                      sesion.estado === 'completado' ? 'Registrada' :
+                      sesion.estado === 'pendiente' ? 'Pendiente' :
+                      'Programada'
+                    }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div *ngIf="!carrera.loading && !carrera.error && carrera.sesiones.length === 0" class="empty-message">
+          No hay sesiones de asistencia para esta carrera
         </div>
       </div>
     </div>

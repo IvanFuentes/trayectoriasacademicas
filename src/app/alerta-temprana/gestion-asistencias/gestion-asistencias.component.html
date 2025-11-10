@@ -4,7 +4,15 @@
     Seleccione una carrera para ver el estado de configuración de asistencias en los cursos
   </p>
 
-  <div class="carreras-list">
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="loading-message">
+    Cargando carreras...
+  </div>
+
+  <div class="carreras-list" *ngIf="!isLoading">
     <div
       *ngFor="let carrera of carreras"
       class="carrera-item"
@@ -19,7 +27,15 @@
       </button>
 
       <div class="cursos-container" *ngIf="selectedCarrera === carrera.id">
-        <div class="cursos-table">
+        <div *ngIf="carrera.loading" class="loading-message">
+          Cargando cursos...
+        </div>
+
+        <div *ngIf="carrera.error" class="error-message">
+          {{ carrera.error }}
+        </div>
+
+        <div *ngIf="!carrera.loading && !carrera.error && carrera.cursos.length > 0" class="cursos-table">
           <div class="table-header">
             <div class="header-cell">Curso</div>
             <div class="header-cell">Grupo</div>
@@ -46,6 +62,10 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div *ngIf="!carrera.loading && !carrera.error && carrera.cursos.length === 0" class="empty-message">
+          No hay cursos disponibles para esta carrera
         </div>
       </div>
     </div>

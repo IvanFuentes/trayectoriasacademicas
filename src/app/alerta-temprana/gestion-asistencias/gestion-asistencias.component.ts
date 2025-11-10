@@ -1,17 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MoodleService, Carrera, Curso } from '../../services/moodle.service';
 
-interface Curso {
-  nombre: string;
-  grupo: string;
-  docente: string;
-  estado: 'configurado' | 'pendiente';
-}
-
-interface Carrera {
-  id: string;
+interface CarreraData {
+  id: number;
   nombre: string;
   cursos: Curso[];
+  loading?: boolean;
+  error?: string;
 }
 
 @Component({
@@ -21,101 +17,69 @@ interface Carrera {
   templateUrl: './gestion-asistencias.component.html',
   styleUrls: ['./gestion-asistencias.component.css']
 })
-export class GestionAsistenciasComponent {
-  carreras: Carrera[] = [
-    {
-      id: 'sistemas',
-      nombre: 'Ingeniería en Sistemas Computacionales',
-      cursos: [
-        {
-          nombre: 'Programación Orientada a Objetos',
-          grupo: 'ISMA-2',
-          docente: 'Juan Carlos Díaz López',
-          estado: 'configurado'
-        },
-        {
-          nombre: 'Administración de Base de Datos',
-          grupo: 'ISMA-6',
-          docente: 'Iván Humberto Fuentes Chab',
-          estado: 'configurado'
-        },
-        {
-          nombre: 'Programación Web',
-          grupo: 'ISMA-6',
-          docente: 'Juan Carlos Díaz López',
-          estado: 'pendiente'
-        },
-        {
-          nombre: 'Redes de Computadoras',
-          grupo: 'S7A',
-          docente: 'Hesiquio Zarate Landa',
-          estado: 'configurado'
-        }
-      ]
-    },
-    {
-      id: 'ferroviaria',
-      nombre: 'Ingeniería Ferroviaria',
-      cursos: [
-        {
-          nombre: 'Sistemas de Señalización',
-          grupo: 'IFMA-6',
-          docente: 'Yesenia Nayrovick Hernández Montero',
-          estado: 'configurado'
-        },
-        {
-          nombre: 'Infraestructura Ferroviaria',
-          grupo: 'IFMA-2',
-          docente: 'Yesenia Nayrovick Hernández Montero',
-          estado: 'pendiente'
-        },
-        {
-          nombre: 'Material Rodante',
-          grupo: 'IFMA-4',
-          docente: 'Diego Zarate Sánchez',
-          estado: 'configurado'
-        }
-      ]
-    },
-    {
-      id: 'animacion',
-      nombre: 'Ingeniería en Animación Digital y Efectos Visuales',
-      cursos: [
-        {
-          nombre: 'Modelado 3D',
-          grupo: 'IAMA-4',
-          docente: 'Damián Uriel Rosado Castellanos',
-          estado: 'configurado'
-        },
-        {
-          nombre: 'Animación de Personajes',
-          grupo: 'IAMA-2',
-          docente: 'Iván Humberto Fuentes Chab',
-          estado: 'pendiente'
-        },
-        {
-          nombre: 'Efectos Visuales',
-          grupo: 'IAMA-6',
-          docente: 'Ing. Fernando Ortiz Luna',
-          estado: 'configurado'
-        },
-        {
-          nombre: 'Francisco Kantún',
-          grupo: 'IAMA-6',
-          docente: 'Francisco Kantún',
-          estado: 'pendiente'
-        }
-      ]
-    }
-  ];
+export class GestionAsistenciasComponent implements OnInit {
+  carreras: CarreraData[] = [];
+  selectedCarrera: number | null = null;
+  isLoading: boolean = true;
+  errorMessage: string = '';
 
-  selectedCarrera: string | null = null;
+  constructor(private moodleService: MoodleService) {}
 
-  selectCarrera(carreraId: string): void {
-    this.selectedCarrera = this.selectedCarrera === carreraId ? null : carreraId;
+  ngOnInit(): void {
+    this.loadCarreras();
   }
 
-  getSelectedCarrera(): Carrera | undefined {
+  loadCarreras(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.moodleService.getCarreras().subscribe({
+      next: (carreras: Carrera[]) => {
+        this.carreras = carreras.map(carrera => ({
+          id: carrera.id,
+          nombre: carrera.nombre,
+          cursos: [],
+          loading: false
+        }));
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading carreras:', error);
+        this.errorMessage = 'Error al cargar las carreras. Por favor, intente de nuevo.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  selectCarrera(carreraId: number): void {
+    if (this.selectedCarrera === carreraId) {
+      this.selectedCarrera = null;
+    } else {
+      this.selectedCarrera = carreraId;
+      this.loadCursos(carreraId);
+    }
+  }
+
+  loadCursos(carreraId: number): void {
+    const carrera = this.carreras.find(c => c.id === carreraId);
+    if (carrera) {
+      carrera.loading = true;
+
+      this.moodleService.getCursos(carreraId).subscribe({
+        next: (cursos: Curso[]) => {
+          carrera.cursos = cursos;
+          carrera.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading cursos:', error);
+          carrera.error = 'Error al cargar los cursos';
+          carrera.loading = false;
+        }
+      });
+    }
+  }
+
+  getSelectedCarrera(): CarreraData | undefined {
     return this.carreras.find(c => c.id === this.selectedCarrera);
   }
 }
