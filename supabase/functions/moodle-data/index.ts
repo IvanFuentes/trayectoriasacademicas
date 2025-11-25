@@ -299,7 +299,7 @@ async function getEstudiantesFaltas(client: Client, carreraId: number) {
            u.id,
            u.firstname || ' ' || u.lastname as nombre,
            u.email,
-           u.idnumber as matricula,
+           u.username as matricula,
            COUNT(DISTINCT DATE(TO_TIMESTAMP(atts.sessdate))) as dias_faltas
      FROM tecnm_user u
      INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
@@ -316,7 +316,7 @@ async function getEstudiantesFaltas(client: Client, carreraId: number) {
        AND c.visible = 1
        AND atts.sessdate < EXTRACT(EPOCH FROM NOW())
        AND (ats.acronym = 'A' OR ats.description LIKE '%Ausente%')
-     GROUP BY u.id, u.firstname, u.lastname, u.email, u.idnumber
+     GROUP BY u.id, u.firstname, u.lastname, u.email, u.username
      HAVING COUNT(DISTINCT DATE(TO_TIMESTAMP(atts.sessdate))) >= 1
      ORDER BY dias_faltas DESC, u.firstname`,
     [carreraId]
@@ -337,7 +337,7 @@ async function getEstudianteDetalle(client: Client, estudianteId: number, carrer
            u.id,
            u.firstname || ' ' || u.lastname as nombre,
            u.email,
-           u.idnumber as matricula,
+           u.username as matricula,
            cat.name as carrera
      FROM tecnm_user u
      INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
@@ -389,7 +389,11 @@ async function getEstudianteDetalle(client: Client, estudianteId: number, carrer
   const faltasPorDia = new Map();
 
   for (const falta of faltas.rows) {
-    const fecha = (falta as any).fecha;
+    const fechaObj = (falta as any).fecha;
+    const fecha = fechaObj instanceof Date
+      ? fechaObj.toISOString().split('T')[0]
+      : String(fechaObj);
+
     if (!faltasPorDia.has(fecha)) {
       faltasPorDia.set(fecha, []);
     }
@@ -400,10 +404,12 @@ async function getEstudianteDetalle(client: Client, estudianteId: number, carrer
     });
   }
 
-  const desgloseDias = Array.from(faltasPorDia.entries()).map(([fecha, cursos]) => ({
-    fecha: fecha,
-    cursos: cursos,
-  }));
+  const desgloseDias = Array.from(faltasPorDia.entries())
+    .map(([fecha, cursos]) => ({
+      fecha: fecha,
+      cursos: cursos,
+    }))
+    .sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   const est = estudiante.rows[0] as any;
 
