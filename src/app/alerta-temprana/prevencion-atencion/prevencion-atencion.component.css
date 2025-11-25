@@ -68,15 +68,23 @@
   border-radius: 50%;
 }
 
-.legend-dot.alerta {
+.legend-dot.anomalia {
+  background: #9ca3af;
+}
+
+.legend-dot.incidencia {
   background: #9ca3af;
 }
 
 .legend-dot.advertencia {
+  background: #9ca3af;
+}
+
+.legend-dot.riesgo {
   background: #fbbf24;
 }
 
-.legend-dot.critico {
+.legend-dot.emergencia {
   background: #ef4444;
 }
 
