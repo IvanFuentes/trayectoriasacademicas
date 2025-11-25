@@ -44,12 +44,12 @@
       <div class="estudiantes-container" *ngIf="selectedCarrera === carrera.id">
         <div class="stats-container">
           <div class="stat-item total">
-            <span class="stat-label">Total de estudiantes:</span>
+            <span class="stat-label">Total de estudiantes ausentes:</span>
             <span class="stat-value">{{ carrera.estudiantes.length }}</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item critico">
-            <span class="stat-label">Alerta Crítica:</span>
+            <span class="stat-label">Crítica:</span>
             <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'critico') }}</span>
           </div>
           <div class="stat-item advertencia">
