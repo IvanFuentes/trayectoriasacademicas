@@ -185,28 +185,44 @@
   font-size: 24px;
 }
 
-.stat-item.critico .stat-label {
+.stat-item.emergencia .stat-label {
   color: #991b1b;
 }
 
-.stat-item.critico .stat-value {
+.stat-item.emergencia .stat-value {
   color: #dc2626;
 }
 
+.stat-item.riesgo .stat-label {
+  color: #854d0e;
+}
+
+.stat-item.riesgo .stat-value {
+  color: #eab308;
+}
+
 .stat-item.advertencia .stat-label {
-  color: #92400e;
+  color: #9a3412;
 }
 
 .stat-item.advertencia .stat-value {
-  color: #f59e0b;
+  color: #f97316;
 }
 
-.stat-item.alerta .stat-label {
-  color: #4b5563;
+.stat-item.incidencia .stat-label {
+  color: #166534;
 }
 
-.stat-item.alerta .stat-value {
-  color: #6b7280;
+.stat-item.incidencia .stat-value {
+  color: #22c55e;
+}
+
+.stat-item.anomalia .stat-label {
+  color: #1e40af;
+}
+
+.stat-item.anomalia .stat-value {
+  color: #3b82f6;
 }
 
 .stat-divider {
@@ -243,17 +259,27 @@
   border: 2px solid transparent;
 }
 
-.estudiante-card.alerta {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+.estudiante-card.anomalia {
+  background: #dbeafe;
+  border-color: #60a5fa;
+}
+
+.estudiante-card.incidencia {
+  background: #dcfce7;
+  border-color: #4ade80;
 }
 
 .estudiante-card.advertencia {
+  background: #fed7aa;
+  border-color: #fb923c;
+}
+
+.estudiante-card.riesgo {
   background: #fef3c7;
   border-color: #fbbf24;
 }
 
-.estudiante-card.critico {
+.estudiante-card.emergencia {
   background: #fee2e2;
   border-color: #ef4444;
 }
@@ -289,15 +315,23 @@
   min-width: 70px;
 }
 
-.faltas-badge.alerta {
-  background: #e5e7eb;
+.faltas-badge.anomalia {
+  background: #3b82f6;
+}
+
+.faltas-badge.incidencia {
+  background: #22c55e;
 }
 
 .faltas-badge.advertencia {
-  background: #fbbf24;
+  background: #f97316;
 }
 
-.faltas-badge.critico {
+.faltas-badge.riesgo {
+  background: #eab308;
+}
+
+.faltas-badge.emergencia {
   background: #ef4444;
 }
 
@@ -307,15 +341,23 @@
   line-height: 1;
 }
 
-.faltas-badge.alerta .faltas-numero {
-  color: #4b5563;
+.faltas-badge.anomalia .faltas-numero {
+  color: white;
+}
+
+.faltas-badge.incidencia .faltas-numero {
+  color: white;
 }
 
 .faltas-badge.advertencia .faltas-numero {
-  color: #92400e;
+  color: white;
 }
 
-.faltas-badge.critico .faltas-numero {
+.faltas-badge.riesgo .faltas-numero {
+  color: #422006;
+}
+
+.faltas-badge.emergencia .faltas-numero {
   color: white;
 }
 
@@ -325,15 +367,23 @@
   margin-top: 4px;
 }
 
-.faltas-badge.alerta .faltas-texto {
-  color: #6b7280;
+.faltas-badge.anomalia .faltas-texto {
+  color: white;
+}
+
+.faltas-badge.incidencia .faltas-texto {
+  color: white;
 }
 
 .faltas-badge.advertencia .faltas-texto {
-  color: #92400e;
+  color: white;
 }
 
-.faltas-badge.critico .faltas-texto {
+.faltas-badge.riesgo .faltas-texto {
+  color: #422006;
+}
+
+.faltas-badge.emergencia .faltas-texto {
   color: white;
 }
 
@@ -544,15 +594,23 @@
   font-weight: 700;
 }
 
-.info-value.faltas-count.alerta {
-  color: #6b7280;
+.info-value.faltas-count.anomalia {
+  color: #3b82f6;
+}
+
+.info-value.faltas-count.incidencia {
+  color: #22c55e;
 }
 
 .info-value.faltas-count.advertencia {
-  color: #d97706;
+  color: #f97316;
 }
 
-.info-value.faltas-count.critico {
+.info-value.faltas-count.riesgo {
+  color: #eab308;
+}
+
+.info-value.faltas-count.emergencia {
   color: #dc2626;
 }
 

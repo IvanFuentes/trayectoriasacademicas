@@ -86,13 +86,27 @@ export class PrevencionAtencionComponent implements OnInit {
   }
 
   getFaltasClass(faltas: number): string {
-    if (faltas >= 5) return 'critico';
-    if (faltas >= 3) return 'advertencia';
-    return 'alerta';
+    if (faltas >= 9) return 'emergencia';
+    if (faltas >= 7) return 'riesgo';
+    if (faltas >= 5) return 'advertencia';
+    if (faltas >= 3) return 'incidencia';
+    return 'anomalia';
   }
 
   getEstudiantesPorNivel(carrera: CarreraData, nivel: string): number {
     return carrera.estudiantes.filter(est => this.getFaltasClass(est.diasFaltas) === nivel).length;
+  }
+
+  getNivelTexto(faltas: number): string {
+    const nivel = this.getFaltasClass(faltas);
+    const textos: { [key: string]: string } = {
+      'anomalia': 'Anomalía',
+      'incidencia': 'Incidencia',
+      'advertencia': 'Advertencia',
+      'riesgo': 'Riesgo',
+      'emergencia': 'Emergencia'
+    };
+    return textos[nivel] || 'Faltas';
   }
 
   openModal(estudiante: EstudianteFaltas): void {

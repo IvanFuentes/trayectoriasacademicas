@@ -48,17 +48,25 @@
             <span class="stat-value">{{ carrera.estudiantes.length }}</span>
           </div>
           <div class="stat-divider"></div>
-          <div class="stat-item critico">
-            <span class="stat-label">Crítica:</span>
-            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'critico') }}</span>
+          <div class="stat-item emergencia">
+            <span class="stat-label">Emergencia:</span>
+            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'emergencia') }}</span>
+          </div>
+          <div class="stat-item riesgo">
+            <span class="stat-label">Riesgo:</span>
+            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'riesgo') }}</span>
           </div>
           <div class="stat-item advertencia">
             <span class="stat-label">Advertencia:</span>
             <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'advertencia') }}</span>
           </div>
-          <div class="stat-item alerta">
-            <span class="stat-label">Alerta:</span>
-            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'alerta') }}</span>
+          <div class="stat-item incidencia">
+            <span class="stat-label">Incidencia:</span>
+            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'incidencia') }}</span>
+          </div>
+          <div class="stat-item anomalia">
+            <span class="stat-label">Anomalía:</span>
+            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'anomalia') }}</span>
           </div>
         </div>
 
@@ -83,7 +91,7 @@
             </div>
             <div class="faltas-badge" [class]="getFaltasClass(estudiante.diasFaltas)">
               <span class="faltas-numero">{{ estudiante.diasFaltas }}</span>
-              <span class="faltas-texto">faltas</span>
+              <span class="faltas-texto">{{ getNivelTexto(estudiante.diasFaltas) }}</span>
             </div>
           </div>
         </div>
