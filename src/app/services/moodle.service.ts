@@ -35,9 +35,28 @@ export interface EstudianteFaltas {
   nombre: string;
   matricula: string;
   email: string;
-  cursoNombre: string;
+  diasFaltas: number;
+}
+
+export interface EstudianteDetalle {
+  id: number;
+  nombre: string;
+  matricula: string;
+  email: string;
+  carrera: string;
+  diasFaltas: number;
+  desgloseDias: DesgloseDia[];
+}
+
+export interface DesgloseDia {
+  fecha: string;
+  cursos: CursoFalta[];
+}
+
+export interface CursoFalta {
+  curso: string;
   cursoId: number;
-  faltas: number;
+  docente: string;
 }
 
 @Injectable({
@@ -119,6 +138,17 @@ export class MoodleService {
     }).pipe(
       catchError(error => {
         console.error('Error checking attendance config:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getEstudianteDetalle(estudianteId: number, carreraId: number): Observable<EstudianteDetalle> {
+    return this.http.get<EstudianteDetalle>(`${this.apiUrl}?action=estudiante-detalle&estudiante_id=${estudianteId}&carrera_id=${carreraId}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(error => {
+        console.error('Error fetching estudiante detalle:', error);
         return throwError(() => error);
       })
     );

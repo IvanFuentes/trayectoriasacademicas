@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MoodleService, Carrera, EstudianteFaltas } from '../../services/moodle.service';
+import { MoodleService, Carrera, EstudianteFaltas, EstudianteDetalle } from '../../services/moodle.service';
 
 interface CarreraData {
   id: number;
@@ -20,7 +20,7 @@ interface CarreraData {
 export class PrevencionAtencionComponent implements OnInit {
   carreras: CarreraData[] = [];
   selectedCarrera: number | null = null;
-  selectedEstudiante: EstudianteFaltas | null = null;
+  selectedEstudiante: EstudianteDetalle | null = null;
   showModal: boolean = false;
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -92,8 +92,17 @@ export class PrevencionAtencionComponent implements OnInit {
   }
 
   openModal(estudiante: EstudianteFaltas): void {
-    this.selectedEstudiante = estudiante;
-    this.showModal = true;
+    if (!this.selectedCarrera) return;
+
+    this.moodleService.getEstudianteDetalle(estudiante.id, this.selectedCarrera).subscribe({
+      next: (detalle: EstudianteDetalle) => {
+        this.selectedEstudiante = detalle;
+        this.showModal = true;
+      },
+      error: (error) => {
+        console.error('Error loading estudiante detalle:', error);
+      }
+    });
   }
 
   closeModal(): void {

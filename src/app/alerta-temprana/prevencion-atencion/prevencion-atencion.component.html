@@ -54,15 +54,15 @@
         <div
           *ngFor="let estudiante of carrera.estudiantes"
           class="estudiante-card"
-          [class]="getFaltasClass(estudiante.faltas)"
+          [class]="getFaltasClass(estudiante.diasFaltas)"
           (click)="openModal(estudiante)"
         >
           <div class="estudiante-info">
             <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
-            <p class="estudiante-curso">{{ estudiante.cursoNombre }}</p>
+            <p class="estudiante-curso">{{ estudiante.matricula }}</p>
           </div>
-          <div class="faltas-badge" [class]="getFaltasClass(estudiante.faltas)">
-            <span class="faltas-numero">{{ estudiante.faltas }}</span>
+          <div class="faltas-badge" [class]="getFaltasClass(estudiante.diasFaltas)">
+            <span class="faltas-numero">{{ estudiante.diasFaltas }}</span>
             <span class="faltas-texto">faltas</span>
           </div>
         </div>
@@ -98,15 +98,35 @@
       </div>
 
       <div class="info-row">
-        <span class="info-label">Curso:</span>
-        <span class="info-value">{{ selectedEstudiante.cursoNombre }}</span>
+        <span class="info-label">Carrera:</span>
+        <span class="info-value">{{ selectedEstudiante.carrera }}</span>
       </div>
 
       <div class="info-row highlight">
         <span class="info-label">Total de Faltas:</span>
-        <span class="info-value faltas-count" [class]="getFaltasClass(selectedEstudiante.faltas)">
-          {{ selectedEstudiante.faltas }}
+        <span class="info-value faltas-count" [class]="getFaltasClass(selectedEstudiante.diasFaltas)">
+          {{ selectedEstudiante.diasFaltas }}
         </span>
+      </div>
+
+      <div class="desglose-section">
+        <h3 class="desglose-title">Desglose de Ausencias por Día</h3>
+        <div class="desglose-lista">
+          <details *ngFor="let dia of selectedEstudiante.desgloseDias" class="dia-item">
+            <summary class="dia-header">
+              <span class="dia-fecha">{{ dia.fecha }}</span>
+              <span class="dia-count">{{ dia.cursos.length }} falta(s)</span>
+            </summary>
+            <div class="cursos-lista">
+              <div *ngFor="let curso of dia.cursos" class="curso-item">
+                <div class="curso-info">
+                  <span class="curso-nombre">{{ curso.curso }}</span>
+                  <span class="docente-nombre">Docente: {{ curso.docente }}</span>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
       </div>
 
       <button class="report-button" (click)="generarReporte()">

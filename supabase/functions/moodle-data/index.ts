@@ -75,9 +75,14 @@ Deno.serve(async (req: Request) => {
         const carreraId = searchParams.get("carrera_id");
         if (!carreraId) throw new Error("Falta par\u00e1metro carrera_id");
         data = await getEstudiantesFaltas(client, parseInt(carreraId));
+      } else if (action === "estudiante-detalle") {
+        const estudianteId = searchParams.get("estudiante_id");
+        const carreraId = searchParams.get("carrera_id");
+        if (!estudianteId || !carreraId) throw new Error("Faltan par\u00e1metros estudiante_id y carrera_id");
+        data = await getEstudianteDetalle(client, parseInt(estudianteId), parseInt(carreraId));
       } else {
         return new Response(
-          JSON.stringify({ error: "Acci\u00f3n no v\u00e1lida. Opciones: carreras, cursos, docentes, asistencias-config, sesiones-asistencia, estudiantes-faltas" }),
+          JSON.stringify({ error: "Acci\u00f3n no v\u00e1lida. Opciones: carreras, cursos, docentes, asistencias-config, sesiones-asistencia, estudiantes-faltas, estudiante-detalle" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -295,10 +300,7 @@ async function getEstudiantesFaltas(client: Client, carreraId: number) {
            u.firstname || ' ' || u.lastname as nombre,
            u.email,
            u.idnumber as matricula,
-           c.fullname as curso,
-           c.id as curso_id,
-           COUNT(CASE WHEN al.statusset LIKE '%A%' THEN 1 END) as total_faltas,
-           COUNT(al.id) as total_registros
+           COUNT(DISTINCT DATE(TO_TIMESTAMP(atts.sessdate))) as dias_faltas
      FROM tecnm_user u
      INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
      INNER JOIN tecnm_enrol e ON ue.enrolid = e.id
@@ -306,25 +308,112 @@ async function getEstudiantesFaltas(client: Client, carreraId: number) {
      INNER JOIN tecnm_attendance att ON att.course = c.id
      INNER JOIN tecnm_attendance_sessions atts ON atts.attendanceid = att.id
      INNER JOIN tecnm_attendance_log al ON al.sessionid = atts.id AND al.studentid = u.id
+     INNER JOIN tecnm_attendance_statuses ats ON ats.id = al.statusid
      WHERE c.category = $1
        AND ue.status = 0
        AND u.deleted = 0
        AND u.suspended = 0
        AND c.visible = 1
        AND atts.sessdate < EXTRACT(EPOCH FROM NOW())
-     GROUP BY u.id, u.firstname, u.lastname, u.email, u.idnumber, c.fullname, c.id
-     HAVING COUNT(CASE WHEN al.statusset LIKE '%A%' THEN 1 END) >= 3
-     ORDER BY total_faltas DESC, u.firstname`,
+       AND (ats.acronym = 'A' OR ats.description LIKE '%Ausente%')
+     GROUP BY u.id, u.firstname, u.lastname, u.email, u.idnumber
+     HAVING COUNT(DISTINCT DATE(TO_TIMESTAMP(atts.sessdate))) >= 1
+     ORDER BY dias_faltas DESC, u.firstname`,
     [carreraId]
   );
-  
+
   return result.rows.map((row: any) => ({
     id: Number(row.id),
     nombre: row.nombre,
     matricula: row.matricula || "N/A",
     email: row.email,
-    cursoNombre: row.curso,
-    cursoId: Number(row.curso_id),
-    faltas: Number(row.total_faltas),
+    diasFaltas: Number(row.dias_faltas),
   }));
+}
+
+async function getEstudianteDetalle(client: Client, estudianteId: number, carreraId: number) {
+  const estudiante = await client.queryObject(
+    `SELECT
+           u.id,
+           u.firstname || ' ' || u.lastname as nombre,
+           u.email,
+           u.idnumber as matricula,
+           cat.name as carrera
+     FROM tecnm_user u
+     INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
+     INNER JOIN tecnm_enrol e ON ue.enrolid = e.id
+     INNER JOIN tecnm_course c ON e.courseid = c.id
+     INNER JOIN tecnm_course_categories cat ON cat.id = c.category
+     WHERE u.id = $1
+       AND c.category = $2
+       AND ue.status = 0
+     LIMIT 1`,
+    [estudianteId, carreraId]
+  );
+
+  const faltas = await client.queryObject(
+    `SELECT
+           DATE(TO_TIMESTAMP(atts.sessdate)) as fecha,
+           atts.sessdate,
+           c.fullname as curso,
+           c.id as curso_id,
+           (SELECT u2.firstname || ' ' || u2.lastname
+            FROM tecnm_user u2
+            INNER JOIN tecnm_role_assignments ra ON ra.userid = u2.id
+            INNER JOIN tecnm_context ctx ON ctx.id = ra.contextid
+            WHERE ctx.instanceid = c.id
+              AND ctx.contextlevel = 50
+              AND ra.roleid IN (3, 4)
+              AND u2.deleted = 0
+              AND u2.suspended = 0
+              AND NOT (u2.username ~ '^[0-9]+$')
+            ORDER BY ra.roleid
+            LIMIT 1) as docente
+     FROM tecnm_user u
+     INNER JOIN tecnm_user_enrolments ue ON u.id = ue.userid
+     INNER JOIN tecnm_enrol e ON ue.enrolid = e.id
+     INNER JOIN tecnm_course c ON e.courseid = c.id
+     INNER JOIN tecnm_attendance att ON att.course = c.id
+     INNER JOIN tecnm_attendance_sessions atts ON atts.attendanceid = att.id
+     INNER JOIN tecnm_attendance_log al ON al.sessionid = atts.id AND al.studentid = u.id
+     INNER JOIN tecnm_attendance_statuses ats ON ats.id = al.statusid
+     WHERE u.id = $1
+       AND c.category = $2
+       AND ue.status = 0
+       AND atts.sessdate < EXTRACT(EPOCH FROM NOW())
+       AND (ats.acronym = 'A' OR ats.description LIKE '%Ausente%')
+     ORDER BY atts.sessdate DESC`,
+    [estudianteId, carreraId]
+  );
+
+  const faltasPorDia = new Map();
+
+  for (const falta of faltas.rows) {
+    const fecha = (falta as any).fecha;
+    if (!faltasPorDia.has(fecha)) {
+      faltasPorDia.set(fecha, []);
+    }
+    faltasPorDia.get(fecha).push({
+      curso: (falta as any).curso,
+      cursoId: Number((falta as any).curso_id),
+      docente: (falta as any).docente || "No asignado",
+    });
+  }
+
+  const desgloseDias = Array.from(faltasPorDia.entries()).map(([fecha, cursos]) => ({
+    fecha: fecha,
+    cursos: cursos,
+  }));
+
+  const est = estudiante.rows[0] as any;
+
+  return {
+    id: Number(est.id),
+    nombre: est.nombre,
+    matricula: est.matricula || "N/A",
+    email: est.email,
+    carrera: est.carrera,
+    diasFaltas: desgloseDias.length,
+    desgloseDias: desgloseDias,
+  };
 }
