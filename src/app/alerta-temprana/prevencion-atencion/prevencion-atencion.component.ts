@@ -91,6 +91,10 @@ export class PrevencionAtencionComponent implements OnInit {
     return 'alerta';
   }
 
+  getEstudiantesPorNivel(carrera: CarreraData, nivel: string): number {
+    return carrera.estudiantes.filter(est => this.getFaltasClass(est.diasFaltas) === nivel).length;
+  }
+
   openModal(estudiante: EstudianteFaltas): void {
     if (!this.selectedCarrera) return;
 

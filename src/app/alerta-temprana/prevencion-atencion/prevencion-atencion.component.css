@@ -129,15 +129,6 @@
   flex: 1;
 }
 
-.carrera-badge {
-  font-size: 13px;
-  font-weight: 600;
-  color: #6b8fa3;
-  background: white;
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-
 .carrera-icon {
   font-size: 24px;
   font-weight: bold;
@@ -154,10 +145,80 @@
 .estudiantes-container {
   padding: 24px;
   background: white;
+  animation: slideDown 0.3s ease;
+}
+
+.stats-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-item.total {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.stat-item.total .stat-value {
+  color: #1f2937;
+  font-size: 24px;
+}
+
+.stat-item.critico .stat-label {
+  color: #991b1b;
+}
+
+.stat-item.critico .stat-value {
+  color: #dc2626;
+}
+
+.stat-item.advertencia .stat-label {
+  color: #92400e;
+}
+
+.stat-item.advertencia .stat-value {
+  color: #f59e0b;
+}
+
+.stat-item.alerta .stat-label {
+  color: #4b5563;
+}
+
+.stat-item.alerta .stat-value {
+  color: #6b7280;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: #d1d5db;
+}
+
+.estudiantes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
-  animation: slideDown 0.3s ease;
 }
 
 @keyframes slideDown {

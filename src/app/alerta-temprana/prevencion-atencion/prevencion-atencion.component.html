@@ -38,11 +38,30 @@
         (click)="selectCarrera(carrera.id)"
       >
         <span class="carrera-nombre">{{ carrera.nombre }}</span>
-        <span class="carrera-badge">{{ carrera.estudiantes.length }} estudiantes</span>
         <span class="carrera-icon">{{ selectedCarrera === carrera.id ? '−' : '+' }}</span>
       </button>
 
       <div class="estudiantes-container" *ngIf="selectedCarrera === carrera.id">
+        <div class="stats-container">
+          <div class="stat-item total">
+            <span class="stat-label">Total de estudiantes:</span>
+            <span class="stat-value">{{ carrera.estudiantes.length }}</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item critico">
+            <span class="stat-label">Alerta Crítica:</span>
+            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'critico') }}</span>
+          </div>
+          <div class="stat-item advertencia">
+            <span class="stat-label">Advertencia:</span>
+            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'advertencia') }}</span>
+          </div>
+          <div class="stat-item alerta">
+            <span class="stat-label">Alerta:</span>
+            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'alerta') }}</span>
+          </div>
+        </div>
+
         <div *ngIf="carrera.loading" class="loading-message">
           Cargando estudiantes...
         </div>
@@ -51,19 +70,21 @@
           {{ carrera.error }}
         </div>
 
-        <div
-          *ngFor="let estudiante of carrera.estudiantes"
-          class="estudiante-card"
-          [class]="getFaltasClass(estudiante.diasFaltas)"
-          (click)="openModal(estudiante)"
-        >
-          <div class="estudiante-info">
-            <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
-            <p class="estudiante-curso"><b>Matrícula:</b> {{ estudiante.matricula }}</p>
-          </div>
-          <div class="faltas-badge" [class]="getFaltasClass(estudiante.diasFaltas)">
-            <span class="faltas-numero">{{ estudiante.diasFaltas }}</span>
-            <span class="faltas-texto">faltas</span>
+        <div class="estudiantes-grid" *ngIf="!carrera.loading && !carrera.error">
+          <div
+            *ngFor="let estudiante of carrera.estudiantes"
+            class="estudiante-card"
+            [class]="getFaltasClass(estudiante.diasFaltas)"
+            (click)="openModal(estudiante)"
+          >
+            <div class="estudiante-info">
+              <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
+              <p class="estudiante-curso"><b>Matrícula:</b> {{ estudiante.matricula }}</p>
+            </div>
+            <div class="faltas-badge" [class]="getFaltasClass(estudiante.diasFaltas)">
+              <span class="faltas-numero">{{ estudiante.diasFaltas }}</span>
+              <span class="faltas-texto">faltas</span>
+            </div>
           </div>
         </div>
 
