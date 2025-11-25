@@ -59,7 +59,7 @@
         >
           <div class="estudiante-info">
             <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
-            <p class="estudiante-curso">{{ estudiante.matricula }}</p>
+            <p class="estudiante-curso"><b>Matrícula:</b> {{ estudiante.matricula }}</p>
           </div>
           <div class="faltas-badge" [class]="getFaltasClass(estudiante.diasFaltas)">
             <span class="faltas-numero">{{ estudiante.diasFaltas }}</span>
