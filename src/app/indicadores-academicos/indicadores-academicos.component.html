@@ -1,0 +1,29 @@
+<div class="indicadores-academicos-container">
+  <header class="module-header">
+    <div class="header-content">
+      <button class="back-button" (click)="goBack()">
+        ← Volver
+      </button>
+      <h1 class="module-title">Indicadores Académicos</h1>
+    </div>
+  </header>
+
+  <div class="tabs-container">
+    <div class="tabs-menu">
+      <button
+        *ngFor="let tab of tabs"
+        class="tab-button"
+        [class.active]="activeTab === tab.id"
+        (click)="selectTab(tab.id)"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+  </div>
+
+  <main class="module-content">
+    <app-indicadores-desercion *ngIf="activeTab === 'desercion'"></app-indicadores-desercion>
+    <app-indicadores-aprobacion *ngIf="activeTab === 'aprobacion'"></app-indicadores-aprobacion>
+    <app-indicadores-eficiencia-terminal *ngIf="activeTab === 'eficiencia'"></app-indicadores-eficiencia-terminal>
+  </main>
+</div>

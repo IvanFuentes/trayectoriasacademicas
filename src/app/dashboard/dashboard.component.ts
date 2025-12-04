@@ -48,6 +48,8 @@ export class DashboardComponent {
   openModule(moduleId: string): void {
     if (moduleId === 'alerta-temprana') {
       this.router.navigate(['/alerta-temprana']);
+    } else if (moduleId === 'indicadores-academicos') {
+      this.router.navigate(['/indicadores-academicos']);
     } else {
       console.log(`Módulo seleccionado: ${moduleId}`);
     }
