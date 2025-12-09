@@ -27,6 +27,16 @@ interface CarreraData {
   expanded: boolean;
 }
 
+interface InstitucionData {
+  totalSesiones: number;
+  sesionesRegistradas: number;
+  sesionesPendientes: number;
+  sesionesFuturas: number;
+  totalPresentes: number;
+  totalAusentes: number;
+  totalPendientes: number;
+}
+
 @Component({
   selector: 'app-indicadores-asistencia',
   standalone: true,
@@ -36,6 +46,15 @@ interface CarreraData {
 })
 export class IndicadoresAsistenciaComponent implements OnInit {
   carreras: CarreraData[] = [];
+  institucion: InstitucionData = {
+    totalSesiones: 0,
+    sesionesRegistradas: 0,
+    sesionesPendientes: 0,
+    sesionesFuturas: 0,
+    totalPresentes: 0,
+    totalAusentes: 0,
+    totalPendientes: 0
+  };
   isLoading = true;
 
   ngOnInit(): void {
@@ -162,12 +181,67 @@ export class IndicadoresAsistenciaComponent implements OnInit {
           ]
         }
       ];
+      this.calculateInstitucionTotals();
       this.isLoading = false;
     }, 500);
   }
 
+  calculateInstitucionTotals(): void {
+    this.institucion = {
+      totalSesiones: this.carreras.reduce((sum, c) => sum + c.totalSesiones, 0),
+      sesionesRegistradas: this.carreras.reduce((sum, c) => sum + c.sesionesRegistradas, 0),
+      sesionesPendientes: this.carreras.reduce((sum, c) => sum + c.sesionesPendientes, 0),
+      sesionesFuturas: this.carreras.reduce((sum, c) => sum + c.sesionesFuturas, 0),
+      totalPresentes: this.carreras.reduce((sum, c) => sum + c.totalPresentes, 0),
+      totalAusentes: this.carreras.reduce((sum, c) => sum + c.totalAusentes, 0),
+      totalPendientes: this.carreras.reduce((sum, c) => sum + c.totalPendientes, 0)
+    };
+  }
+
   toggleCarrera(carrera: CarreraData): void {
     carrera.expanded = !carrera.expanded;
+  }
+
+  getSeguimientoGeneralChartData(): { porcentaje: number; color: string; label: string }[] {
+    const total = this.institucion.totalSesiones;
+    return [
+      {
+        porcentaje: (this.institucion.sesionesRegistradas / total) * 100,
+        color: '#10b981',
+        label: 'Registradas'
+      },
+      {
+        porcentaje: (this.institucion.sesionesPendientes / total) * 100,
+        color: '#ef4444',
+        label: 'Pendientes'
+      },
+      {
+        porcentaje: (this.institucion.sesionesFuturas / total) * 100,
+        color: '#9ca3af',
+        label: 'Futuras'
+      }
+    ];
+  }
+
+  getBalanceGeneralChartData(): { porcentaje: number; color: string; label: string }[] {
+    const total = this.institucion.totalPresentes + this.institucion.totalAusentes + this.institucion.totalPendientes;
+    return [
+      {
+        porcentaje: (this.institucion.totalPresentes / total) * 100,
+        color: '#10b981',
+        label: 'Presentes'
+      },
+      {
+        porcentaje: (this.institucion.totalAusentes / total) * 100,
+        color: '#ef4444',
+        label: 'Ausentes'
+      },
+      {
+        porcentaje: (this.institucion.totalPendientes / total) * 100,
+        color: '#fbbf24',
+        label: 'Pendientes'
+      }
+    ];
   }
 
   getSeguimientoChartData(carrera: CarreraData): { porcentaje: number; color: string; label: string }[] {

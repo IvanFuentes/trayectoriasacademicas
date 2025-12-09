@@ -9,8 +9,66 @@
     <p>Cargando datos...</p>
   </div>
 
-  <div class="carreras-container" *ngIf="!isLoading">
-    <div class="carrera-card" *ngFor="let carrera of carreras">
+  <div *ngIf="!isLoading">
+    <div class="general-section">
+      <div class="general-header">
+        <h3>Indicadores Generales de la Institución</h3>
+        <p class="general-subtitle">Visualización consolidada de todas las carreras</p>
+      </div>
+
+      <div class="charts-row-general">
+        <div class="chart-container-general">
+          <h4 class="chart-title">Seguimiento del pase de lista</h4>
+          <div class="chart-wrapper">
+            <svg viewBox="0 0 100 100" class="pie-chart">
+              <path
+                *ngFor="let segment of getSeguimientoGeneralChartData(); let i = index"
+                [attr.d]="getPieChartPath(getSeguimientoGeneralChartData(), i)"
+                [attr.fill]="segment.color"
+                class="pie-segment"
+              ></path>
+            </svg>
+            <div class="chart-legend">
+              <div class="legend-item" *ngFor="let segment of getSeguimientoGeneralChartData()">
+                <span class="legend-color" [style.background-color]="segment.color"></span>
+                <span class="legend-label">{{ segment.label }}</span>
+                <span class="legend-value">{{ segment.porcentaje.toFixed(1) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-container-general">
+          <h4 class="chart-title">Balance general de asistencias</h4>
+          <div class="chart-wrapper">
+            <svg viewBox="0 0 100 100" class="pie-chart">
+              <path
+                *ngFor="let segment of getBalanceGeneralChartData(); let i = index"
+                [attr.d]="getPieChartPath(getBalanceGeneralChartData(), i)"
+                [attr.fill]="segment.color"
+                class="pie-segment"
+              ></path>
+            </svg>
+            <div class="chart-legend">
+              <div class="legend-item" *ngFor="let segment of getBalanceGeneralChartData()">
+                <span class="legend-color" [style.background-color]="segment.color"></span>
+                <span class="legend-label">{{ segment.label }}</span>
+                <span class="legend-value">{{ segment.porcentaje.toFixed(1) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="carreras-section">
+      <div class="carreras-header">
+        <h3>Desglose por Carrera</h3>
+        <p class="carreras-subtitle">Haz clic en una carrera para ver el detalle</p>
+      </div>
+
+      <div class="carreras-container">
+        <div class="carrera-card" *ngFor="let carrera of carreras">
       <div class="carrera-header" (click)="toggleCarrera(carrera)">
         <div class="carrera-info">
           <h3>{{ carrera.nombre }}</h3>
@@ -113,6 +171,8 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>
