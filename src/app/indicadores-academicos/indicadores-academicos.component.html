@@ -22,6 +22,7 @@
   </div>
 
   <main class="module-content">
+    <app-indicadores-asistencia *ngIf="activeTab === 'asistencia'"></app-indicadores-asistencia>
     <app-indicadores-desercion *ngIf="activeTab === 'desercion'"></app-indicadores-desercion>
     <app-indicadores-aprobacion *ngIf="activeTab === 'aprobacion'"></app-indicadores-aprobacion>
     <app-indicadores-eficiencia-terminal *ngIf="activeTab === 'eficiencia'"></app-indicadores-eficiencia-terminal>

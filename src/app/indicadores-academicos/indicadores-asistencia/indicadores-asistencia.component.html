@@ -1,0 +1,120 @@
+<div class="indicadores-asistencia-container">
+  <div class="header">
+    <h2>Indicadores de Asistencia</h2>
+    <p class="subtitle">Visualización de seguimiento de asistencias por carrera y asignatura</p>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando datos...</p>
+  </div>
+
+  <div class="carreras-container" *ngIf="!isLoading">
+    <div class="carrera-card" *ngFor="let carrera of carreras">
+      <div class="carrera-header" (click)="toggleCarrera(carrera)">
+        <div class="carrera-info">
+          <h3>{{ carrera.nombre }}</h3>
+          <span class="estudiantes-count">{{ carrera.totalEstudiantes }} estudiantes</span>
+        </div>
+        <button class="toggle-btn" [class.expanded]="carrera.expanded">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div class="carrera-content">
+        <div class="charts-row">
+          <div class="chart-container">
+            <h4 class="chart-title">Seguimiento del pase de lista</h4>
+            <div class="chart-wrapper">
+              <svg viewBox="0 0 100 100" class="pie-chart">
+                <path
+                  *ngFor="let segment of getSeguimientoChartData(carrera); let i = index"
+                  [attr.d]="getPieChartPath(getSeguimientoChartData(carrera), i)"
+                  [attr.fill]="segment.color"
+                  class="pie-segment"
+                ></path>
+              </svg>
+              <div class="chart-legend">
+                <div class="legend-item" *ngFor="let segment of getSeguimientoChartData(carrera)">
+                  <span class="legend-color" [style.background-color]="segment.color"></span>
+                  <span class="legend-label">{{ segment.label }}</span>
+                  <span class="legend-value">{{ segment.porcentaje.toFixed(1) }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <h4 class="chart-title">Balance general de asistencias</h4>
+            <div class="chart-wrapper">
+              <svg viewBox="0 0 100 100" class="pie-chart">
+                <path
+                  *ngFor="let segment of getBalanceChartData(carrera); let i = index"
+                  [attr.d]="getPieChartPath(getBalanceChartData(carrera), i)"
+                  [attr.fill]="segment.color"
+                  class="pie-segment"
+                ></path>
+              </svg>
+              <div class="chart-legend">
+                <div class="legend-item" *ngFor="let segment of getBalanceChartData(carrera)">
+                  <span class="legend-color" [style.background-color]="segment.color"></span>
+                  <span class="legend-label">{{ segment.label }}</span>
+                  <span class="legend-value">{{ segment.porcentaje.toFixed(1) }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asignaturas-section" *ngIf="carrera.expanded">
+          <h4 class="section-title">Desglose por Asignatura</h4>
+
+          <div class="asignatura-card" *ngFor="let asignatura of carrera.asignaturas">
+            <div class="asignatura-header">
+              <div class="asignatura-info">
+                <h5 class="asignatura-nombre">{{ asignatura.nombre }}</h5>
+                <div class="asignatura-details">
+                  <span class="detail-item">
+                    <strong>Clave:</strong> {{ asignatura.clave }}
+                  </span>
+                  <span class="detail-item">
+                    <strong>Grupo:</strong> {{ asignatura.grupo }}
+                  </span>
+                  <span class="detail-item">
+                    <strong>Docente:</strong> {{ asignatura.docente }}
+                  </span>
+                  <span class="detail-item">
+                    <strong>Estudiantes:</strong> {{ asignatura.totalEstudiantes }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="asignatura-chart">
+              <div class="mini-chart-wrapper">
+                <svg viewBox="0 0 100 100" class="pie-chart-small">
+                  <path
+                    *ngFor="let segment of getAsignaturaChartData(asignatura); let i = index"
+                    [attr.d]="getPieChartPath(getAsignaturaChartData(asignatura), i)"
+                    [attr.fill]="segment.color"
+                    class="pie-segment"
+                  ></path>
+                </svg>
+                <div class="mini-legend">
+                  <div class="mini-legend-item" *ngFor="let segment of getAsignaturaChartData(asignatura)">
+                    <span class="mini-legend-color" [style.background-color]="segment.color"></span>
+                    <span class="mini-legend-text">
+                      {{ segment.label }}: {{ segment.porcentaje.toFixed(1) }}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { IndicadoresAsistenciaComponent } from './indicadores-asistencia/indicadores-asistencia.component';
 import { IndicadoresDesercionComponent } from './indicadores-desercion/indicadores-desercion.component';
 import { IndicadoresAprobacionComponent } from './indicadores-aprobacion/indicadores-aprobacion.component';
 import { IndicadoresEficienciaTerminalComponent } from './indicadores-eficiencia-terminal/indicadores-eficiencia-terminal.component';
@@ -10,6 +11,7 @@ import { IndicadoresEficienciaTerminalComponent } from './indicadores-eficiencia
   standalone: true,
   imports: [
     CommonModule,
+    IndicadoresAsistenciaComponent,
     IndicadoresDesercionComponent,
     IndicadoresAprobacionComponent,
     IndicadoresEficienciaTerminalComponent
@@ -18,9 +20,10 @@ import { IndicadoresEficienciaTerminalComponent } from './indicadores-eficiencia
   styleUrls: ['./indicadores-academicos.component.css']
 })
 export class IndicadoresAcademicosComponent {
-  activeTab: string = 'desercion';
+  activeTab: string = 'asistencia';
 
   tabs = [
+    { id: 'asistencia', label: 'Indicadores de Asistencia' },
     { id: 'desercion', label: 'Indicadores de Deserción' },
     { id: 'aprobacion', label: 'Indicadores de Aprobación' },
     { id: 'eficiencia', label: 'Indicadores de Eficiencia Terminal' }
