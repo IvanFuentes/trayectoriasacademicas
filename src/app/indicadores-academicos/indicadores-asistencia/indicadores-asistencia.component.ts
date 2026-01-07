@@ -11,6 +11,7 @@ interface AsignaturaData {
   presentes: number;
   ausentes: number;
   pendientes: number;
+  expanded?: boolean;
 }
 
 interface CarreraData {
@@ -192,11 +193,16 @@ export class IndicadoresAsistenciaComponent implements OnInit {
         totalEstudiantes: maxEstudiantes || 25,
         presentes: totalPresentes,
         ausentes: estimadoAusentes,
-        pendientes: estimadoPendientes
+        pendientes: estimadoPendientes,
+        expanded: false
       });
     });
 
     return asignaturas.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }
+
+  toggleAsignatura(asignatura: AsignaturaData): void {
+    asignatura.expanded = !asignatura.expanded;
   }
 
   getSeguimientoGeneralChartData(): { porcentaje: number; color: string; label: string }[] {
