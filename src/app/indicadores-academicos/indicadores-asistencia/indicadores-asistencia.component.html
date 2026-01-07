@@ -72,8 +72,8 @@
           <div class="carrera-header" (click)="toggleCarrera(carrera)">
             <div class="carrera-info">
               <h3>{{ carrera.nombre }}</h3>
-              <span class="estudiantes-count" *ngIf="carrera.expanded && carrera.totalEstudiantes > 0">
-                {{ carrera.totalEstudiantes }} estudiantes
+              <span class="estudiantes-count" *ngIf="carrera.expanded && carrera.asignaturas && carrera.asignaturas.length > 0">
+                {{ carrera.asignaturas.length }} {{ carrera.asignaturas.length === 1 ? 'curso' : 'cursos' }}
               </span>
             </div>
             <button class="toggle-btn" [class.expanded]="carrera.expanded">
