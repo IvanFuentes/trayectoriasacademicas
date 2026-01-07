@@ -8,6 +8,7 @@ interface AsignaturaData {
   grupo: string;
   docente: string;
   totalEstudiantes: number;
+  totalSesiones: number;
   presentes: number;
   ausentes: number;
   pendientes: number;
@@ -191,6 +192,7 @@ export class IndicadoresAsistenciaComponent implements OnInit {
         grupo: primerasesion.grupoNombre || 'Sin grupo',
         docente: primerasesion.docente,
         totalEstudiantes: maxEstudiantes || 25,
+        totalSesiones: sesionesCurso.length,
         presentes: totalPresentes,
         ausentes: estimadoAusentes,
         pendientes: estimadoPendientes,
