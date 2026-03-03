@@ -47,25 +47,25 @@
   font-size: 14px;
 }
 
-.carreras-list {
+.categorias-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.carrera-item {
+.categoria-item {
   border: 2px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
-.carrera-item.expanded {
+.categoria-item.expanded {
   border-color: #8ba8bc;
   box-shadow: 0 4px 12px rgba(107, 143, 163, 0.15);
 }
 
-.carrera-button {
+.categoria-button {
   width: 100%;
   padding: 20px 24px;
   display: flex;
@@ -77,18 +77,18 @@
   transition: all 0.3s ease;
 }
 
-.carrera-button:hover {
+.categoria-button:hover {
   background: linear-gradient(135deg, #e8eef2 0%, #d4dfe8 100%);
 }
 
-.carrera-nombre {
+.categoria-nombre {
   font-size: 16px;
   font-weight: 600;
   color: #1a1a1a;
   text-align: left;
 }
 
-.carrera-icon {
+.categoria-icon {
   font-size: 24px;
   font-weight: bold;
   color: #6b8fa3;

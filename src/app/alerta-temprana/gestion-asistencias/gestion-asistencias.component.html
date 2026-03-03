@@ -1,7 +1,7 @@
 <div class="gestion-container">
   <h2 class="section-title">Gestión de Asistencias</h2>
   <p class="section-description">
-    Seleccione una carrera para ver el estado de configuración de asistencias en los cursos
+    Seleccione una categoría para ver el estado de configuración de asistencias en los cursos
   </p>
 
   <div *ngIf="errorMessage" class="error-message">
@@ -9,33 +9,29 @@
   </div>
 
   <div *ngIf="isLoading" class="loading-message">
-    Cargando carreras...
+    Cargando categorías...
   </div>
 
-  <div class="carreras-list" *ngIf="!isLoading">
+  <div class="categorias-list" *ngIf="!isLoading">
     <div
-      *ngFor="let carrera of carreras"
-      class="carrera-item"
-      [class.expanded]="selectedCarrera === carrera.id"
+      *ngFor="let categoria of categorias"
+      class="categoria-item"
+      [class.expanded]="categoria.expanded"
     >
       <button
-        class="carrera-button"
-        (click)="selectCarrera(carrera.id)"
+        class="categoria-button"
+        (click)="toggleCategoria(categoria)"
       >
-        <span class="carrera-nombre">{{ carrera.nombre }}</span>
-        <span class="carrera-icon">{{ selectedCarrera === carrera.id ? '−' : '+' }}</span>
+        <span class="categoria-nombre">{{ categoria.nombre }}</span>
+        <span class="categoria-icon">{{ categoria.expanded ? '−' : '+' }}</span>
       </button>
 
-      <div class="cursos-container" *ngIf="selectedCarrera === carrera.id">
-        <div *ngIf="carrera.loading" class="loading-message">
+      <div class="cursos-container" *ngIf="categoria.expanded">
+        <div *ngIf="categoria.loading" class="loading-message">
           Cargando cursos...
         </div>
 
-        <div *ngIf="carrera.error" class="error-message">
-          {{ carrera.error }}
-        </div>
-
-        <div *ngIf="!carrera.loading && !carrera.error && carrera.cursos.length > 0" class="cursos-table">
+        <div *ngIf="!categoria.loading && categoria.cursos && categoria.cursos.length > 0" class="cursos-table">
           <div class="table-header">
             <div class="header-cell">Curso</div>
             <div class="header-cell">Grupo</div>
@@ -46,7 +42,7 @@
 
           <div class="table-body">
             <div
-              *ngFor="let curso of carrera.cursos"
+              *ngFor="let curso of categoria.cursos"
               class="table-row"
             >
               <div class="table-cell">{{ curso.nombre }}</div>
@@ -66,8 +62,8 @@
           </div>
         </div>
 
-        <div *ngIf="!carrera.loading && !carrera.error && carrera.cursos.length === 0" class="empty-message">
-          No hay cursos disponibles para esta carrera
+        <div *ngIf="!categoria.loading && (!categoria.cursos || categoria.cursos.length === 0)" class="empty-message">
+          No hay cursos disponibles para esta categoría
         </div>
       </div>
     </div>

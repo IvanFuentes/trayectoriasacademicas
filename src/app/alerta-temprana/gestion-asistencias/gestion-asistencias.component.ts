@@ -1,6 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MoodleService, Carrera, Curso } from '../../services/moodle.service';
+import { MoodleService, Carrera, Curso, Categoria } from '../../services/moodle.service';
+
+interface CategoriaNode {
+  id: number;
+  nombre: string;
+  path: string;
+  parent: number;
+  subcategorias?: CategoriaNode[];
+  cursos?: Curso[];
+  loading?: boolean;
+  expanded?: boolean;
+}
 
 interface CarreraData {
   id: number;
@@ -18,68 +29,77 @@ interface CarreraData {
   styleUrls: ['./gestion-asistencias.component.css']
 })
 export class GestionAsistenciasComponent implements OnInit {
-  carreras: CarreraData[] = [];
-  selectedCarrera: number | null = null;
+  categorias: CategoriaNode[] = [];
   isLoading: boolean = true;
   errorMessage: string = '';
 
   constructor(private moodleService: MoodleService) {}
 
   ngOnInit(): void {
-    this.loadCarreras();
+    this.loadCategorias();
   }
 
-  loadCarreras(): void {
+  loadCategorias(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.moodleService.getCarreras().subscribe({
-      next: (carreras: Carrera[]) => {
-        this.carreras = carreras.map(carrera => ({
-          id: carrera.id,
-          nombre: carrera.nombre,
-          cursos: [],
-          loading: false
-        }));
+    this.moodleService.getCategorias().subscribe({
+      next: (categorias: Categoria[]) => {
+        this.categorias = this.buildCategoryTree(categorias);
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading carreras:', error);
-        this.errorMessage = 'Error al cargar las carreras. Por favor, intente de nuevo.';
+        console.error('Error loading categorias:', error);
+        this.errorMessage = 'Error al cargar las categorías. Por favor, intente de nuevo.';
         this.isLoading = false;
       }
     });
   }
 
-  selectCarrera(carreraId: number): void {
-    if (this.selectedCarrera === carreraId) {
-      this.selectedCarrera = null;
-    } else {
-      this.selectedCarrera = carreraId;
-      this.loadCursos(carreraId);
-    }
-  }
+  buildCategoryTree(categorias: Categoria[]): CategoriaNode[] {
+    const categoryMap = new Map<number, CategoriaNode>();
 
-  loadCursos(carreraId: number): void {
-    const carrera = this.carreras.find(c => c.id === carreraId);
-    if (carrera) {
-      carrera.loading = true;
-
-      this.moodleService.getCursos(carreraId).subscribe({
-        next: (cursos: Curso[]) => {
-          carrera.cursos = cursos;
-          carrera.loading = false;
-        },
-        error: (error) => {
-          console.error('Error loading cursos:', error);
-          carrera.error = 'Error al cargar los cursos';
-          carrera.loading = false;
-        }
+    categorias.forEach(cat => {
+      categoryMap.set(cat.id, {
+        id: cat.id,
+        nombre: cat.nombre,
+        path: cat.path,
+        parent: cat.parent,
+        subcategorias: [],
+        expanded: false
       });
+    });
+
+    const roots: CategoriaNode[] = [];
+    categorias.forEach(cat => {
+      const node = categoryMap.get(cat.id)!;
+      if (cat.parent === 0) {
+        roots.push(node);
+      }
+    });
+
+    return roots.sort((a, b) => a.id - b.id);
+  }
+
+  toggleCategoria(categoria: CategoriaNode): void {
+    categoria.expanded = !categoria.expanded;
+    if (categoria.expanded && !categoria.cursos) {
+      this.loadCursosPorCategoria(categoria);
     }
   }
 
-  getSelectedCarrera(): CarreraData | undefined {
-    return this.carreras.find(c => c.id === this.selectedCarrera);
+  loadCursosPorCategoria(categoria: CategoriaNode): void {
+    categoria.loading = true;
+
+    this.moodleService.getCategoriasCursos(categoria.id).subscribe({
+      next: (cursos: Curso[]) => {
+        categoria.cursos = cursos;
+        categoria.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading cursos:', error);
+        categoria.loading = false;
+      }
+    });
   }
 }

@@ -7,6 +7,13 @@ export interface Carrera {
   nombre: string;
 }
 
+export interface Categoria {
+  id: number;
+  nombre: string;
+  path: string;
+  parent: number;
+}
+
 export interface Curso {
   id: number;
   nombre: string;
@@ -83,6 +90,28 @@ export class MoodleService {
     }).pipe(
       catchError(error => {
         console.error('Error fetching carreras:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getCategorias(): Observable<Categoria[]> {
+    return this.http.get<Categoria[]>(`${this.apiUrl}?action=categorias`, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(error => {
+        console.error('Error fetching categorias:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getCategoriasCursos(categoriaId: number): Observable<Curso[]> {
+    return this.http.get<Curso[]>(`${this.apiUrl}?action=categorias-cursos&categoria_id=${categoriaId}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(error => {
+        console.error('Error fetching categorias cursos:', error);
         return throwError(() => error);
       })
     );

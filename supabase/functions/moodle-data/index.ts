@@ -57,6 +57,12 @@ Deno.serve(async (req: Request) => {
     if (req.method === "GET") {
       if (action === "carreras") {
         data = await getCarreras(client);
+      } else if (action === "categorias") {
+        data = await getCategorias(client);
+      } else if (action === "categorias-cursos") {
+        const categoriaId = searchParams.get("categoria_id");
+        if (!categoriaId) throw new Error("Falta par\u00e1metro categoria_id");
+        data = await getCategoriasCursos(client, parseInt(categoriaId));
       } else if (action === "cursos") {
         const carreraId = searchParams.get("carrera_id");
         if (!carreraId) throw new Error("Falta par\u00e1metro carrera_id");
@@ -82,7 +88,7 @@ Deno.serve(async (req: Request) => {
         data = await getEstudianteDetalle(client, parseInt(estudianteId), parseInt(carreraId));
       } else {
         return new Response(
-          JSON.stringify({ error: "Acci\u00f3n no v\u00e1lida. Opciones: carreras, cursos, docentes, asistencias-config, sesiones-asistencia, estudiantes-faltas, estudiante-detalle" }),
+          JSON.stringify({ error: "Acci\u00f3n no v\u00e1lida. Opciones: carreras, categorias, categorias-cursos, cursos, docentes, asistencias-config, sesiones-asistencia, estudiantes-faltas, estudiante-detalle" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -132,6 +138,82 @@ async function getCarreras(client: Client) {
     id: Number(row.id),
     nombre: row.name,
   }));
+}
+
+async function getCategorias(client: Client) {
+  const result = await client.queryObject(`
+    SELECT id, name, path, parent
+    FROM tecnm_course_categories
+    WHERE id IN (3, 2, 4)
+    ORDER BY id
+  `);
+
+  return result.rows.map((row: any) => ({
+    id: Number(row.id),
+    nombre: row.name,
+    path: row.path,
+    parent: Number(row.parent),
+  }));
+}
+
+async function getCategoriasCursos(client: Client, categoriaId: number) {
+  const result = await client.queryObject(
+    `SELECT id, fullname, shortname, category
+     FROM tecnm_course
+     WHERE category = $1 AND visible = 1
+     ORDER BY fullname`,
+    [categoriaId]
+  );
+
+  const cursos = [];
+  for (const curso of result.rows) {
+    const docente = await client.queryObject(
+      `SELECT u.id, u.firstname, u.lastname, u.email, u.username, ra.roleid
+       FROM tecnm_user u
+       INNER JOIN tecnm_role_assignments ra ON ra.userid = u.id
+       INNER JOIN tecnm_context ctx ON ctx.id = ra.contextid
+       WHERE ctx.instanceid = $1
+         AND ctx.contextlevel = 50
+         AND ra.roleid IN (3, 4)
+         AND u.deleted = 0
+         AND u.suspended = 0
+         AND NOT (u.username ~ '^[0-9]+$')
+       ORDER BY ra.roleid, u.id
+       LIMIT 1`,
+      [(curso as any).id]
+    );
+
+    const attendance = await client.queryObject(
+      `SELECT id
+       FROM tecnm_attendance
+       WHERE course = $1
+       LIMIT 1`,
+      [(curso as any).id]
+    );
+
+    const grupo = await client.queryObject(
+      `SELECT g.name
+       FROM tecnm_groups g
+       INNER JOIN tecnm_groups_members gm ON gm.groupid = g.id
+       WHERE g.courseid = $1
+       LIMIT 1`,
+      [(curso as any).id]
+    );
+
+    const doc = docente.rows[0] as any;
+    const grp = grupo.rows[0] as any;
+    cursos.push({
+      id: Number((curso as any).id),
+      nombre: (curso as any).fullname,
+      clave: (curso as any).shortname,
+      grupo: grp?.name || "Sin grupo",
+      docente: doc ? `${doc.firstname} ${doc.lastname}` : "No asignado",
+      docenteEmail: doc?.email || "",
+      estado: attendance.rows.length > 0 ? "configurado" : "pendiente",
+    });
+  }
+
+  return cursos;
 }
 
 async function getCursos(client: Client, carreraId: number) {
