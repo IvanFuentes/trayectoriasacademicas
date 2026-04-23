@@ -13,59 +13,8 @@
   </div>
 
   <div class="categorias-list" *ngIf="!isLoading">
-    <div
-      *ngFor="let categoria of categorias"
-      class="categoria-item"
-      [class.expanded]="categoria.expanded"
-    >
-      <button
-        class="categoria-button"
-        (click)="toggleCategoria(categoria)"
-      >
-        <span class="categoria-nombre">{{ categoria.nombre }}</span>
-        <span class="categoria-icon">{{ categoria.expanded ? '−' : '+' }}</span>
-      </button>
-
-      <div class="cursos-container" *ngIf="categoria.expanded">
-        <div *ngIf="categoria.loading" class="loading-message">
-          Cargando cursos...
-        </div>
-
-        <div *ngIf="!categoria.loading && categoria.cursos && categoria.cursos.length > 0" class="cursos-table">
-          <div class="table-header">
-            <div class="header-cell">Curso</div>
-            <div class="header-cell">Grupo</div>
-            <div class="header-cell">Clave</div>
-            <div class="header-cell">Docente</div>
-            <div class="header-cell">Estado</div>
-          </div>
-
-          <div class="table-body">
-            <div
-              *ngFor="let curso of categoria.cursos"
-              class="table-row"
-            >
-              <div class="table-cell">{{ curso.nombre }}</div>
-              <div class="table-cell">{{ curso.grupo }}</div>
-              <div class="table-cell">{{ curso.clave }}</div>
-              <div class="table-cell">{{ curso.docente }}</div>
-              <div class="table-cell">
-                <span
-                  class="estado-badge"
-                  [class.configurado]="curso.estado === 'configurado'"
-                  [class.pendiente]="curso.estado === 'pendiente'"
-                >
-                  {{ curso.estado === 'configurado' ? 'Configurado' : 'Pendiente de Configuración' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="!categoria.loading && (!categoria.cursos || categoria.cursos.length === 0)" class="empty-message">
-          No hay cursos disponibles para esta categoría
-        </div>
-      </div>
-    </div>
+    <ng-container *ngFor="let categoria of categorias">
+      <app-categoria-tree [categoria]="categoria" [moodleService]="moodleService"></app-categoria-tree>
+    </ng-container>
   </div>
 </div>

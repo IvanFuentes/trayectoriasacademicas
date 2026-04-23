@@ -1,30 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MoodleService, Carrera, Curso, Categoria } from '../../services/moodle.service';
+import { CategoriaTreeComponent } from './categoria-tree.component';
 
 interface CategoriaNode {
   id: number;
   nombre: string;
   path: string;
   parent: number;
-  subcategorias?: CategoriaNode[];
+  hijos?: CategoriaNode[];
   cursos?: Curso[];
   loading?: boolean;
   expanded?: boolean;
 }
 
-interface CarreraData {
-  id: number;
-  nombre: string;
-  cursos: Curso[];
-  loading?: boolean;
-  error?: string;
-}
-
 @Component({
   selector: 'app-gestion-asistencias',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CategoriaTreeComponent],
   templateUrl: './gestion-asistencias.component.html',
   styleUrls: ['./gestion-asistencias.component.css']
 })
@@ -32,8 +25,11 @@ export class GestionAsistenciasComponent implements OnInit {
   categorias: CategoriaNode[] = [];
   isLoading: boolean = true;
   errorMessage: string = '';
+  moodleService: MoodleService;
 
-  constructor(private moodleService: MoodleService) {}
+  constructor(moodleService: MoodleService) {
+    this.moodleService = moodleService;
+  }
 
   ngOnInit(): void {
     this.loadCategorias();
@@ -45,7 +41,7 @@ export class GestionAsistenciasComponent implements OnInit {
 
     this.moodleService.getCategorias().subscribe({
       next: (categorias: Categoria[]) => {
-        this.categorias = this.buildCategoryTree(categorias);
+        this.categorias = this.transformToNodes(categorias);
         this.isLoading = false;
       },
       error: (error) => {
@@ -56,34 +52,20 @@ export class GestionAsistenciasComponent implements OnInit {
     });
   }
 
-  buildCategoryTree(categorias: Categoria[]): CategoriaNode[] {
-    const categoryMap = new Map<number, CategoriaNode>();
-
-    categorias.forEach(cat => {
-      categoryMap.set(cat.id, {
-        id: cat.id,
-        nombre: cat.nombre,
-        path: cat.path,
-        parent: cat.parent,
-        subcategorias: [],
-        expanded: false
-      });
-    });
-
-    const roots: CategoriaNode[] = [];
-    categorias.forEach(cat => {
-      const node = categoryMap.get(cat.id)!;
-      if (cat.parent === 0) {
-        roots.push(node);
-      }
-    });
-
-    return roots.sort((a, b) => a.id - b.id);
+  transformToNodes(categorias: Categoria[]): CategoriaNode[] {
+    return categorias.map(cat => ({
+      id: cat.id,
+      nombre: cat.nombre,
+      path: cat.path,
+      parent: cat.parent,
+      hijos: cat.hijos ? this.transformToNodes(cat.hijos) : [],
+      expanded: false
+    }));
   }
 
   toggleCategoria(categoria: CategoriaNode): void {
     categoria.expanded = !categoria.expanded;
-    if (categoria.expanded && !categoria.cursos) {
+    if (categoria.expanded && categoria.hijos && categoria.hijos.length === 0 && !categoria.cursos) {
       this.loadCursosPorCategoria(categoria);
     }
   }

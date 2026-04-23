@@ -144,16 +144,35 @@ async function getCategorias(client: Client) {
   const result = await client.queryObject(`
     SELECT id, name, path, parent
     FROM tecnm_course_categories
-    WHERE id IN (3, 2, 4)
-    ORDER BY id
+    ORDER BY path, id
   `);
 
-  return result.rows.map((row: any) => ({
+  const allCategories = result.rows.map((row: any) => ({
     id: Number(row.id),
     nombre: row.name,
     path: row.path,
     parent: Number(row.parent),
   }));
+
+  const categoryMap = new Map<number, any>();
+  allCategories.forEach(cat => {
+    categoryMap.set(cat.id, { ...cat, hijos: [] });
+  });
+
+  const raices: any[] = [];
+  allCategories.forEach(cat => {
+    const node = categoryMap.get(cat.id)!;
+    if (cat.parent === 0) {
+      raices.push(node);
+    } else {
+      const padre = categoryMap.get(cat.parent);
+      if (padre) {
+        padre.hijos.push(node);
+      }
+    }
+  });
+
+  return raices.sort((a, b) => a.id - b.id);
 }
 
 async function getCategoriasCursos(client: Client, categoriaId: number) {

@@ -12,6 +12,7 @@ export interface Categoria {
   nombre: string;
   path: string;
   parent: number;
+  hijos?: Categoria[];
 }
 
 export interface Curso {
