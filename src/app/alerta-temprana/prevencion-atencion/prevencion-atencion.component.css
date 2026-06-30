@@ -18,35 +18,6 @@
   margin: 0 0 24px 0;
 }
 
-.loading-message {
-  padding: 16px;
-  background: #e8eef2;
-  border-radius: 8px;
-  color: #6b8fa3;
-  font-size: 14px;
-  font-weight: 500;
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.error-message {
-  padding: 16px;
-  background: #fee2e2;
-  border-radius: 8px;
-  color: #991b1b;
-  font-size: 14px;
-  font-weight: 500;
-  border-left: 4px solid #ef4444;
-  margin-bottom: 16px;
-}
-
-.empty-message {
-  padding: 20px;
-  text-align: center;
-  color: #64748b;
-  font-size: 14px;
-}
-
 .legend-container {
   display: flex;
   gap: 24px;
@@ -68,23 +39,15 @@
   border-radius: 50%;
 }
 
-.legend-dot.anomalia {
-  background: #60a5fa;
-}
-
-.legend-dot.incidencia {
-  background: #4ade80;
+.legend-dot.alerta {
+  background: #9ca3af;
 }
 
 .legend-dot.advertencia {
-  background: #fb923c;
-}
-
-.legend-dot.riesgo {
   background: #fbbf24;
 }
 
-.legend-dot.emergencia {
+.legend-dot.critico {
   background: #ef4444;
 }
 
@@ -137,6 +100,15 @@
   flex: 1;
 }
 
+.carrera-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b8fa3;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
 .carrera-icon {
   font-size: 24px;
   font-weight: bold;
@@ -153,96 +125,10 @@
 .estudiantes-container {
   padding: 24px;
   background: white;
-  animation: slideDown 0.3s ease;
-}
-
-.stats-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-  border-radius: 8px;
-  margin-bottom: 24px;
-  border: 1px solid #e5e7eb;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-item.total {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #6b7280;
-}
-
-.stat-value {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.stat-item.total .stat-value {
-  color: #1f2937;
-  font-size: 24px;
-}
-
-.stat-item.emergencia .stat-label {
-  color: #991b1b;
-}
-
-.stat-item.emergencia .stat-value {
-  color: #dc2626;
-}
-
-.stat-item.riesgo .stat-label {
-  color: #854d0e;
-}
-
-.stat-item.riesgo .stat-value {
-  color: #eab308;
-}
-
-.stat-item.advertencia .stat-label {
-  color: #9a3412;
-}
-
-.stat-item.advertencia .stat-value {
-  color: #f97316;
-}
-
-.stat-item.incidencia .stat-label {
-  color: #166534;
-}
-
-.stat-item.incidencia .stat-value {
-  color: #22c55e;
-}
-
-.stat-item.anomalia .stat-label {
-  color: #1e40af;
-}
-
-.stat-item.anomalia .stat-value {
-  color: #3b82f6;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 40px;
-  background: #d1d5db;
-}
-
-.estudiantes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
+  animation: slideDown 0.3s ease;
 }
 
 @keyframes slideDown {
@@ -267,27 +153,17 @@
   border: 2px solid transparent;
 }
 
-.estudiante-card.anomalia {
-  background: #dbeafe;
-  border-color: #60a5fa;
-}
-
-.estudiante-card.incidencia {
-  background: #dcfce7;
-  border-color: #4ade80;
+.estudiante-card.alerta {
+  background: #f3f4f6;
+  border-color: #d1d5db;
 }
 
 .estudiante-card.advertencia {
-  background: #fed7aa;
-  border-color: #fb923c;
-}
-
-.estudiante-card.riesgo {
   background: #fef3c7;
   border-color: #fbbf24;
 }
 
-.estudiante-card.emergencia {
+.estudiante-card.critico {
   background: #fee2e2;
   border-color: #ef4444;
 }
@@ -323,23 +199,15 @@
   min-width: 70px;
 }
 
-.faltas-badge.anomalia {
-  background: #3b82f6;
-}
-
-.faltas-badge.incidencia {
-  background: #22c55e;
+.faltas-badge.alerta {
+  background: #e5e7eb;
 }
 
 .faltas-badge.advertencia {
-  background: #f97316;
+  background: #fbbf24;
 }
 
-.faltas-badge.riesgo {
-  background: #eab308;
-}
-
-.faltas-badge.emergencia {
+.faltas-badge.critico {
   background: #ef4444;
 }
 
@@ -349,23 +217,15 @@
   line-height: 1;
 }
 
-.faltas-badge.anomalia .faltas-numero {
-  color: white;
-}
-
-.faltas-badge.incidencia .faltas-numero {
-  color: white;
+.faltas-badge.alerta .faltas-numero {
+  color: #4b5563;
 }
 
 .faltas-badge.advertencia .faltas-numero {
-  color: white;
+  color: #92400e;
 }
 
-.faltas-badge.riesgo .faltas-numero {
-  color: #422006;
-}
-
-.faltas-badge.emergencia .faltas-numero {
+.faltas-badge.critico .faltas-numero {
   color: white;
 }
 
@@ -375,113 +235,16 @@
   margin-top: 4px;
 }
 
-.faltas-badge.anomalia .faltas-texto {
-  color: white;
-}
-
-.faltas-badge.incidencia .faltas-texto {
-  color: white;
+.faltas-badge.alerta .faltas-texto {
+  color: #6b7280;
 }
 
 .faltas-badge.advertencia .faltas-texto {
+  color: #92400e;
+}
+
+.faltas-badge.critico .faltas-texto {
   color: white;
-}
-
-.faltas-badge.riesgo .faltas-texto {
-  color: #422006;
-}
-
-.faltas-badge.emergencia .faltas-texto {
-  color: white;
-}
-
-.desglose-section {
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid #e5e7eb;
-}
-
-.desglose-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 16px;
-}
-
-.desglose-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.dia-item {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-}
-
-.dia-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  cursor: pointer;
-  background: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-  transition: background 0.2s ease;
-}
-
-.dia-header:hover {
-  background: #f3f4f6;
-}
-
-.dia-fecha {
-  font-size: 15px;
-  color: #1f2937;
-}
-
-.dia-count {
-  font-size: 13px;
-  color: #6b7280;
-  background: #e5e7eb;
-  padding: 4px 12px;
-  border-radius: 12px;
-}
-
-.cursos-lista {
-  padding: 16px;
-  background: #fafafa;
-}
-
-.curso-item {
-  padding: 12px;
-  background: white;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  border-left: 3px solid #6b8fa3;
-}
-
-.curso-item:last-child {
-  margin-bottom: 0;
-}
-
-.curso-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.curso-nombre {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.docente-nombre {
-  font-size: 13px;
-  color: #6b7280;
 }
 
 .modal-overlay {
@@ -602,23 +365,15 @@
   font-weight: 700;
 }
 
-.info-value.faltas-count.anomalia {
-  color: #3b82f6;
-}
-
-.info-value.faltas-count.incidencia {
-  color: #22c55e;
+.info-value.faltas-count.alerta {
+  color: #6b7280;
 }
 
 .info-value.faltas-count.advertencia {
-  color: #f97316;
+  color: #d97706;
 }
 
-.info-value.faltas-count.riesgo {
-  color: #eab308;
-}
-
-.info-value.faltas-count.emergencia {
+.info-value.faltas-count.critico {
   color: #dc2626;
 }
 

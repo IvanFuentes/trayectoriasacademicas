@@ -1,87 +1,121 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MoodleService, Carrera, Curso, Categoria } from '../../services/moodle.service';
-import { CategoriaTreeComponent } from './categoria-tree.component';
 
-interface CategoriaNode {
-  id: number;
+interface Curso {
   nombre: string;
-  path: string;
-  parent: number;
-  hijos?: CategoriaNode[];
-  cursos?: Curso[];
-  loading?: boolean;
-  expanded?: boolean;
+  grupo: string;
+  docente: string;
+  estado: 'configurado' | 'pendiente';
+}
+
+interface Carrera {
+  id: string;
+  nombre: string;
+  cursos: Curso[];
 }
 
 @Component({
   selector: 'app-gestion-asistencias',
   standalone: true,
-  imports: [CommonModule, CategoriaTreeComponent],
+  imports: [CommonModule],
   templateUrl: './gestion-asistencias.component.html',
   styleUrls: ['./gestion-asistencias.component.css']
 })
-export class GestionAsistenciasComponent implements OnInit {
-  categorias: CategoriaNode[] = [];
-  isLoading: boolean = true;
-  errorMessage: string = '';
-  moodleService: MoodleService;
-
-  constructor(moodleService: MoodleService) {
-    this.moodleService = moodleService;
-  }
-
-  ngOnInit(): void {
-    this.loadCategorias();
-  }
-
-  loadCategorias(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    this.moodleService.getCategorias().subscribe({
-      next: (categorias: Categoria[]) => {
-        this.categorias = this.transformToNodes(categorias);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading categorias:', error);
-        this.errorMessage = 'Error al cargar las categorías. Por favor, intente de nuevo.';
-        this.isLoading = false;
-      }
-    });
-  }
-
-  transformToNodes(categorias: Categoria[]): CategoriaNode[] {
-    return categorias.map(cat => ({
-      id: cat.id,
-      nombre: cat.nombre,
-      path: cat.path,
-      parent: cat.parent,
-      hijos: cat.hijos ? this.transformToNodes(cat.hijos) : [],
-      expanded: false
-    }));
-  }
-
-  toggleCategoria(categoria: CategoriaNode): void {
-    categoria.expanded = !categoria.expanded;
-    if (categoria.expanded && categoria.hijos && categoria.hijos.length === 0 && !categoria.cursos) {
-      this.loadCursosPorCategoria(categoria);
+export class GestionAsistenciasComponent {
+  carreras: Carrera[] = [
+    {
+      id: 'sistemas',
+      nombre: 'Ingeniería en Sistemas Computacionales',
+      cursos: [
+        {
+          nombre: 'Programación Orientada a Objetos',
+          grupo: 'ISMA-2',
+          docente: 'Juan Carlos Díaz López',
+          estado: 'configurado'
+        },
+        {
+          nombre: 'Administración de Base de Datos',
+          grupo: 'ISMA-6',
+          docente: 'Iván Humberto Fuentes Chab',
+          estado: 'configurado'
+        },
+        {
+          nombre: 'Programación Web',
+          grupo: 'ISMA-6',
+          docente: 'Juan Carlos Díaz López',
+          estado: 'pendiente'
+        },
+        {
+          nombre: 'Redes de Computadoras',
+          grupo: 'S7A',
+          docente: 'Hesiquio Zarate Landa',
+          estado: 'configurado'
+        }
+      ]
+    },
+    {
+      id: 'ferroviaria',
+      nombre: 'Ingeniería Ferroviaria',
+      cursos: [
+        {
+          nombre: 'Sistemas de Señalización',
+          grupo: 'IFMA-6',
+          docente: 'Yesenia Nayrovick Hernández Montero',
+          estado: 'configurado'
+        },
+        {
+          nombre: 'Infraestructura Ferroviaria',
+          grupo: 'IFMA-2',
+          docente: 'Yesenia Nayrovick Hernández Montero',
+          estado: 'pendiente'
+        },
+        {
+          nombre: 'Material Rodante',
+          grupo: 'IFMA-4',
+          docente: 'Diego Zarate Sánchez',
+          estado: 'configurado'
+        }
+      ]
+    },
+    {
+      id: 'animacion',
+      nombre: 'Ingeniería en Animación Digital y Efectos Visuales',
+      cursos: [
+        {
+          nombre: 'Modelado 3D',
+          grupo: 'IAMA-4',
+          docente: 'Damián Uriel Rosado Castellanos',
+          estado: 'configurado'
+        },
+        {
+          nombre: 'Animación de Personajes',
+          grupo: 'IAMA-2',
+          docente: 'Iván Humberto Fuentes Chab',
+          estado: 'pendiente'
+        },
+        {
+          nombre: 'Efectos Visuales',
+          grupo: 'IAMA-6',
+          docente: 'Ing. Fernando Ortiz Luna',
+          estado: 'configurado'
+        },
+        {
+          nombre: 'Francisco Kantún',
+          grupo: 'IAMA-6',
+          docente: 'Francisco Kantún',
+          estado: 'pendiente'
+        }
+      ]
     }
+  ];
+
+  selectedCarrera: string | null = null;
+
+  selectCarrera(carreraId: string): void {
+    this.selectedCarrera = this.selectedCarrera === carreraId ? null : carreraId;
   }
 
-  loadCursosPorCategoria(categoria: CategoriaNode): void {
-    categoria.loading = true;
-
-    this.moodleService.getCategoriasCursos(categoria.id).subscribe({
-      next: (cursos: Curso[]) => {
-        categoria.cursos = cursos;
-        categoria.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading cursos:', error);
-        categoria.loading = false;
-      }
-    });
+  getSelectedCarrera(): Carrera | undefined {
+    return this.carreras.find(c => c.id === this.selectedCarrera);
   }
 }

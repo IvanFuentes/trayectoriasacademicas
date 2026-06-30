@@ -1,41 +1,25 @@
 <div class="prevencion-container">
   <h2 class="section-title">Prevención y Atención Focalizada</h2>
   <p class="section-description">
-    Identificación de estudiantes con faltas recurrentes para su intervención oportuna
+    Identificación de estudiantes con faltas para intervención oportuna
   </p>
 
   <div class="legend-container">
     <div class="legend-item">
-      <span class="legend-dot anomalia"></span>
-      <span class="legend-text">1-2 faltas "Anomalía"</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-dot incidencia"></span>
-      <span class="legend-text">3-4 faltas "Incidencia"</span>
+      <span class="legend-dot alerta"></span>
+      <span class="legend-text">1-2 faltas (Alerta)</span>
     </div>
     <div class="legend-item">
       <span class="legend-dot advertencia"></span>
-      <span class="legend-text">5-6 faltas "Advertencia"</span>
+      <span class="legend-text">3-4 faltas (Advertencia)</span>
     </div>
     <div class="legend-item">
-      <span class="legend-dot riesgo"></span>
-      <span class="legend-text">7-8 faltas "Riesgo"</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-dot emergencia"></span>
-      <span class="legend-text">9+ faltas "Emergencia"</span>
+      <span class="legend-dot critico"></span>
+      <span class="legend-text">5+ faltas (Crítico)</span>
     </div>
   </div>
 
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="isLoading" class="loading-message">
-    Cargando carreras...
-  </div>
-
-  <div class="carreras-list" *ngIf="!isLoading">
+  <div class="carreras-list">
     <div
       *ngFor="let carrera of carreras"
       class="carrera-item"
@@ -46,66 +30,25 @@
         (click)="selectCarrera(carrera.id)"
       >
         <span class="carrera-nombre">{{ carrera.nombre }}</span>
+        <span class="carrera-badge">{{ carrera.estudiantes.length }} estudiantes</span>
         <span class="carrera-icon">{{ selectedCarrera === carrera.id ? '−' : '+' }}</span>
       </button>
 
       <div class="estudiantes-container" *ngIf="selectedCarrera === carrera.id">
-        <div class="stats-container">
-          <div class="stat-item total">
-            <span class="stat-label">Total de estudiantes ausentes:</span>
-            <span class="stat-value">{{ carrera.estudiantes.length }}</span>
+        <div
+          *ngFor="let estudiante of carrera.estudiantes"
+          class="estudiante-card"
+          [class]="getFaltasClass(estudiante.faltas)"
+          (click)="openModal(estudiante)"
+        >
+          <div class="estudiante-info">
+            <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
+            <p class="estudiante-curso">{{ estudiante.curso }}</p>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item emergencia">
-            <span class="stat-label">Emergencia:</span>
-            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'emergencia') }}</span>
+          <div class="faltas-badge" [class]="getFaltasClass(estudiante.faltas)">
+            <span class="faltas-numero">{{ estudiante.faltas }}</span>
+            <span class="faltas-texto">faltas</span>
           </div>
-          <div class="stat-item riesgo">
-            <span class="stat-label">Riesgo:</span>
-            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'riesgo') }}</span>
-          </div>
-          <div class="stat-item advertencia">
-            <span class="stat-label">Advertencia:</span>
-            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'advertencia') }}</span>
-          </div>
-          <div class="stat-item incidencia">
-            <span class="stat-label">Incidencia:</span>
-            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'incidencia') }}</span>
-          </div>
-          <div class="stat-item anomalia">
-            <span class="stat-label">Anomalía:</span>
-            <span class="stat-value">{{ getEstudiantesPorNivel(carrera, 'anomalia') }}</span>
-          </div>
-        </div>
-
-        <div *ngIf="carrera.loading" class="loading-message">
-          Cargando estudiantes...
-        </div>
-
-        <div *ngIf="carrera.error" class="error-message">
-          {{ carrera.error }}
-        </div>
-
-        <div class="estudiantes-grid" *ngIf="!carrera.loading && !carrera.error">
-          <div
-            *ngFor="let estudiante of carrera.estudiantes"
-            class="estudiante-card"
-            [class]="getFaltasClass(estudiante.diasFaltas)"
-            (click)="openModal(estudiante)"
-          >
-            <div class="estudiante-info">
-              <h3 class="estudiante-nombre">{{ estudiante.nombre }}</h3>
-              <p class="estudiante-curso"><b>Matrícula:</b> {{ estudiante.matricula }}</p>
-            </div>
-            <div class="faltas-badge" [class]="getFaltasClass(estudiante.diasFaltas)">
-              <span class="faltas-numero">{{ estudiante.diasFaltas }}</span>
-              <span class="faltas-texto">{{ getNivelTexto(estudiante.diasFaltas) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="!carrera.loading && !carrera.error && carrera.estudiantes.length === 0" class="empty-message">
-          No hay estudiantes con faltas en esta carrera
         </div>
       </div>
     </div>
@@ -130,40 +73,25 @@
       </div>
 
       <div class="info-row">
+        <span class="info-label">Carrera:</span>
+        <span class="info-value">{{ selectedEstudiante.carrera }}</span>
+      </div>
+
+      <div class="info-row">
         <span class="info-label">Correo Electrónico:</span>
         <span class="info-value">{{ selectedEstudiante.email }}</span>
       </div>
 
       <div class="info-row">
-        <span class="info-label">Carrera:</span>
-        <span class="info-value">{{ selectedEstudiante.carrera }}</span>
+        <span class="info-label">Curso:</span>
+        <span class="info-value">{{ selectedEstudiante.curso }}</span>
       </div>
 
       <div class="info-row highlight">
         <span class="info-label">Total de Faltas:</span>
-        <span class="info-value faltas-count" [class]="getFaltasClass(selectedEstudiante.diasFaltas)">
-          {{ selectedEstudiante.diasFaltas }}
+        <span class="info-value faltas-count" [class]="getFaltasClass(selectedEstudiante.faltas)">
+          {{ selectedEstudiante.faltas }}
         </span>
-      </div>
-
-      <div class="desglose-section">
-        <h3 class="desglose-title">Desglose de Ausencias por Día</h3>
-        <div class="desglose-lista">
-          <details *ngFor="let dia of selectedEstudiante.desgloseDias" class="dia-item">
-            <summary class="dia-header">
-              <span class="dia-fecha">{{ dia.fecha }}</span>
-              <span class="dia-count">{{ dia.cursos.length }} falta(s)</span>
-            </summary>
-            <div class="cursos-lista">
-              <div *ngFor="let curso of dia.cursos" class="curso-item">
-                <div class="curso-info">
-                  <span class="curso-nombre">{{ curso.curso }}</span>
-                  <span class="docente-nombre">Docente: {{ curso.docente }}</span>
-                </div>
-              </div>
-            </div>
-          </details>
-        </div>
       </div>
 
       <button class="report-button" (click)="generarReporte()">
