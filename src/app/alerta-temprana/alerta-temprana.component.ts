@@ -5,7 +5,6 @@ import { GestionAsistenciasComponent } from './gestion-asistencias/gestion-asist
 import { SeguimientoRegistroComponent } from './seguimiento-registro/seguimiento-registro.component';
 import { PrevencionAtencionComponent } from './prevencion-atencion/prevencion-atencion.component';
 import { IntervencionColaborativaComponent } from './intervencion-colaborativa/intervencion-colaborativa.component';
-import { AlertaDesercionComponent } from './alerta-desercion/alerta-desercion.component';
 
 @Component({
   selector: 'app-alerta-temprana',
@@ -15,8 +14,7 @@ import { AlertaDesercionComponent } from './alerta-desercion/alerta-desercion.co
     GestionAsistenciasComponent,
     SeguimientoRegistroComponent,
     PrevencionAtencionComponent,
-    IntervencionColaborativaComponent,
-    AlertaDesercionComponent
+    IntervencionColaborativaComponent
   ],
   templateUrl: './alerta-temprana.component.html',
   styleUrls: ['./alerta-temprana.component.css']
@@ -28,8 +26,7 @@ export class AlertaTempranaComponent {
     { id: 'gestion', label: 'Gestión de Asistencias' },
     { id: 'seguimiento', label: 'Seguimiento del Registro de Asistencia' },
     { id: 'prevencion', label: 'Prevención y Atención Focalizada' },
-    { id: 'intervencion', label: 'Intervención Colaborativa' },
-    { id: 'desercion', label: 'Alerta de Deserción' }
+    { id: 'intervencion', label: 'Intervención Colaborativa' }
   ];
 
   constructor(private router: Router) {}

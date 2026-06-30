@@ -1,13 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MoodleService, Carrera, EstudianteFaltas, EstudianteDetalle } from '../../services/moodle.service';
 
-interface CarreraData {
-  id: number;
+interface Estudiante {
+  id: string;
   nombre: string;
-  estudiantes: EstudianteFaltas[];
-  loading?: boolean;
-  error?: string;
+  matricula: string;
+  carrera: string;
+  email: string;
+  curso: string;
+  faltas: number;
+}
+
+interface CarreraPrevencion {
+  id: string;
+  nombre: string;
+  estudiantes: Estudiante[];
 }
 
 @Component({
@@ -17,110 +24,121 @@ interface CarreraData {
   templateUrl: './prevencion-atencion.component.html',
   styleUrls: ['./prevencion-atencion.component.css']
 })
-export class PrevencionAtencionComponent implements OnInit {
-  carreras: CarreraData[] = [];
-  selectedCarrera: number | null = null;
-  selectedEstudiante: EstudianteDetalle | null = null;
-  showModal: boolean = false;
-  isLoading: boolean = true;
-  errorMessage: string = '';
-
-  constructor(private moodleService: MoodleService) {}
-
-  ngOnInit(): void {
-    this.loadCarreras();
-  }
-
-  loadCarreras(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    this.moodleService.getCarreras().subscribe({
-      next: (carreras: Carrera[]) => {
-        this.carreras = carreras.map(carrera => ({
-          id: carrera.id,
-          nombre: carrera.nombre,
-          estudiantes: [],
-          loading: false
-        }));
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading carreras:', error);
-        this.errorMessage = 'Error al cargar las carreras. Por favor, intente de nuevo.';
-        this.isLoading = false;
-      }
-    });
-  }
-
-  selectCarrera(carreraId: number): void {
-    if (this.selectedCarrera === carreraId) {
-      this.selectedCarrera = null;
-    } else {
-      this.selectedCarrera = carreraId;
-      this.loadEstudiantes(carreraId);
-    }
-  }
-
-  loadEstudiantes(carreraId: number): void {
-    const carrera = this.carreras.find(c => c.id === carreraId);
-    if (carrera) {
-      carrera.loading = true;
-
-      this.moodleService.getEstudiantesFaltas(carreraId).subscribe({
-        next: (estudiantes: EstudianteFaltas[]) => {
-          carrera.estudiantes = estudiantes;
-          carrera.loading = false;
+export class PrevencionAtencionComponent {
+  carreras: CarreraPrevencion[] = [
+    {
+      id: 'sistemas',
+      nombre: 'Ingeniería en Sistemas Computacionales',
+      estudiantes: [
+        {
+          id: '1',
+          nombre: 'Ana María González Pérez',
+          matricula: '120204010',
+          carrera: 'Ingeniería en Sistemas Computacionales',
+          email: 'ana.gonzalez@escarcega.tecnm.mx',
+          curso: 'Programación Orientada a Objetos',
+          faltas: 2
         },
-        error: (error) => {
-          console.error('Error loading estudiantes:', error);
-          carrera.error = 'Error al cargar estudiantes con faltas';
-          carrera.loading = false;
+        {
+          id: '2',
+          nombre: 'Carlos Alberto Martínez López',
+          matricula: 'S20005678',
+          carrera: 'Ingeniería en Sistemas Computacionales',
+          email: 'carlos.martinez@itssnp.edu.mx',
+          curso: 'Administración de Base de Datos',
+          faltas: 4
+        },
+        {
+          id: '3',
+          nombre: 'María Elena Ramírez Torres',
+          matricula: 'S21002345',
+          carrera: 'Ingeniería en Sistemas Computacionales',
+          email: 'maria.ramirez@itssnp.edu.mx',
+          curso: 'Programación Web',
+          faltas: 6
         }
-      });
+      ]
+    },
+    {
+      id: 'ferroviaria',
+      nombre: 'Ingeniería Ferroviaria',
+      estudiantes: [
+        {
+          id: '4',
+          nombre: 'José Luis Hernández García',
+          matricula: 'F21003456',
+          carrera: 'Ingeniería Ferroviaria',
+          email: 'jose.hernandez@itssnp.edu.mx',
+          curso: 'Sistemas de Señalización',
+          faltas: 3
+        },
+        {
+          id: '5',
+          nombre: 'Laura Patricia Sánchez Ruiz',
+          matricula: 'F20007890',
+          carrera: 'Ingeniería Ferroviaria',
+          email: 'laura.sanchez@itssnp.edu.mx',
+          curso: 'Infraestructura Ferroviaria',
+          faltas: 7
+        }
+      ]
+    },
+    {
+      id: 'animacion',
+      nombre: 'Ingeniería en Animación Digital y Efectos Visuales',
+      estudiantes: [
+        {
+          id: '6',
+          nombre: 'Diego Fernando Morales Castro',
+          matricula: 'A21004567',
+          carrera: 'Ingeniería en Animación Digital y Efectos Visuales',
+          email: 'diego.morales@itssnp.edu.mx',
+          curso: 'Modelado 3D',
+          faltas: 1
+        },
+        {
+          id: '7',
+          nombre: 'Carmen Beatriz Torres Díaz',
+          matricula: 'A20008901',
+          carrera: 'Ingeniería en Animación Digital y Efectos Visuales',
+          email: 'carmen.torres@itssnp.edu.mx',
+          curso: 'Animación de Personajes',
+          faltas: 5
+        },
+        {
+          id: '8',
+          nombre: 'Roberto Alejandro Flores Vega',
+          matricula: 'A21005678',
+          carrera: 'Ingeniería en Animación Digital y Efectos Visuales',
+          email: 'roberto.flores@itssnp.edu.mx',
+          curso: 'Efectos Visuales',
+          faltas: 8
+        }
+      ]
     }
+  ];
+
+  selectedCarrera: string | null = null;
+  selectedEstudiante: Estudiante | null = null;
+  showModal: boolean = false;
+
+  selectCarrera(carreraId: string): void {
+    this.selectedCarrera = this.selectedCarrera === carreraId ? null : carreraId;
   }
 
-  getSelectedCarrera(): CarreraData | undefined {
+  getSelectedCarrera(): CarreraPrevencion | undefined {
     return this.carreras.find(c => c.id === this.selectedCarrera);
   }
 
   getFaltasClass(faltas: number): string {
-    if (faltas >= 9) return 'emergencia';
-    if (faltas >= 7) return 'riesgo';
-    if (faltas >= 5) return 'advertencia';
-    if (faltas >= 3) return 'incidencia';
-    return 'anomalia';
+    if (faltas >= 5) return 'critico';
+    if (faltas >= 3) return 'advertencia';
+    return 'alerta';
   }
 
-  getEstudiantesPorNivel(carrera: CarreraData, nivel: string): number {
-    return carrera.estudiantes.filter(est => this.getFaltasClass(est.diasFaltas) === nivel).length;
-  }
-
-  getNivelTexto(faltas: number): string {
-    const nivel = this.getFaltasClass(faltas);
-    const textos: { [key: string]: string } = {
-      'anomalia': 'Anomalía',
-      'incidencia': 'Incidencia',
-      'advertencia': 'Advertencia',
-      'riesgo': 'Riesgo',
-      'emergencia': 'Emergencia'
-    };
-    return textos[nivel] || 'Faltas';
-  }
-
-  openModal(estudiante: EstudianteFaltas): void {
-    if (!this.selectedCarrera) return;
-
-    this.moodleService.getEstudianteDetalle(estudiante.id, this.selectedCarrera).subscribe({
-      next: (detalle: EstudianteDetalle) => {
-        this.selectedEstudiante = detalle;
-        this.showModal = true;
-      },
-      error: (error) => {
-        console.error('Error loading estudiante detalle:', error);
-      }
-    });
+  openModal(estudiante: Estudiante): void {
+    this.selectedEstudiante = estudiante;
+    this.showModal = true;
   }
 
   closeModal(): void {
