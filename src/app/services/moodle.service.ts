@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Carrera {
   id: number;
@@ -71,11 +72,15 @@ export interface CursoFalta {
   providedIn: 'root'
 })
 export class MoodleService {
-  private supabaseUrl = 'https://yxuzeeblexqpjfmnfxhy.supabase.co';
-  private supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dXplZWJsZXhxcGpmbW5meGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NDA0MzcsImV4cCI6MjA3ODMxNjQzN30.3ljtL7SzH-M0vDsQn-FgvdWyS1Ze-Mqzn2pnVFunsIY';
+  private supabaseUrl = environment.supabaseUrl;
+  private supabaseKey = environment.supabaseKey;
   private apiUrl = `${this.supabaseUrl}/functions/v1/moodle-data`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    if (!this.supabaseUrl || !this.supabaseKey) {
+      throw new Error('Supabase URL and anon key are required for Moodle API calls. Make sure src/environments/environment.ts is generated from .env.');
+    }
+  }
 
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({

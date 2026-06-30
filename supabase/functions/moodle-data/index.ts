@@ -13,29 +13,80 @@ async function getClient() {
   const user = Deno.env.get("MOODLE_DB_USER");
   const password = Deno.env.get("MOODLE_DB_PASSWORD");
   const database = Deno.env.get("MOODLE_DB_NAME");
+  const tlsMode = (Deno.env.get("MOODLE_DB_TLS") || "prefer").toLowerCase();
+
+  console.log("getClient: loaded env", {
+    host,
+    port,
+    user,
+    database,
+    password: password ? `SET (${password.length} chars)` : "NOT SET",
+    tlsMode,
+  });
 
   if (!host || !user || !password || !database) {
     throw new Error("Faltan variables de entorno. Configura MOODLE_DB_HOST, MOODLE_DB_USER, MOODLE_DB_PASSWORD, MOODLE_DB_NAME y MOODLE_DB_PORT en Supabase Dashboard.");
   }
 
-  const client = new Client({
+  const connectOptions = {
     hostname: host,
     port: parseInt(port),
     user,
     password,
     database,
-    tls: {
-      enabled: true,
-      enforce: false,
-      caCertificates: [],
-    },
-  });
+  };
 
-  await client.connect();
-  return client;
+  async function connectWithTls(enforce: boolean) {
+    const client = new Client({
+      ...connectOptions,
+      tls: {
+        enabled: true,
+        enforce,
+      },
+    });
+    await client.connect();
+    return client;
+  }
+
+  async function connectWithoutTls() {
+    const client = new Client({
+      ...connectOptions,
+      tls: { enabled: false },
+    });
+    await client.connect();
+    return client;
+  }
+
+  console.log(`getClient: tlsMode=${tlsMode}`);
+
+  if (tlsMode === "disable") {
+    console.log("getClient: connecting without TLS by configuration");
+    const client = await connectWithoutTls();
+    console.log("getClient: connected to PostgreSQL without TLS");
+    return client;
+  }
+
+  if (tlsMode === "require") {
+    console.log("getClient: connecting with TLS required");
+    const client = await connectWithTls(true);
+    console.log("getClient: connected to PostgreSQL with TLS required");
+    return client;
+  }
+
+  // prefer - if TLS is available, use it; otherwise fail cleanly so insecure fallback is not used unintentionally.
+  try {
+    console.log("getClient: connecting with TLS preferred");
+    const client = await connectWithTls(false);
+    console.log("getClient: connected to PostgreSQL with TLS preferred");
+    return client;
+  } catch (tlsError) {
+    console.error("getClient: TLS preferred failed", tlsError);
+    throw new Error("TLS preferred failed when connecting to Moodle DB. Set MOODLE_DB_TLS=disable if the remote server does not support TLS, or MOODLE_DB_TLS=require if it does.");
+  }
 }
 
 Deno.serve(async (req: Request) => {
+  console.log("Request received", { method: req.method, url: req.url });
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 200,
@@ -49,6 +100,8 @@ Deno.serve(async (req: Request) => {
     const url = new URL(req.url);
     const searchParams = url.searchParams;
     const action = searchParams.get("action");
+
+    console.log("Parsed request", { action, params: Object.fromEntries(searchParams.entries()) });
 
     client = await getClient();
 
@@ -118,7 +171,9 @@ Deno.serve(async (req: Request) => {
   } finally {
     if (client) {
       try {
+        console.log("Closing PostgreSQL connection");
         await client.end();
+        console.log("PostgreSQL connection closed");
       } catch (e) {
         console.error("Error closing connection:", e);
       }
@@ -127,6 +182,7 @@ Deno.serve(async (req: Request) => {
 });
 
 async function getCarreras(client: Client) {
+  console.log("Executing getCarreras");
   const result = await client.queryObject(`
     SELECT id, name
     FROM tecnm_course_categories
@@ -141,6 +197,7 @@ async function getCarreras(client: Client) {
 }
 
 async function getCategorias(client: Client) {
+  console.log("Executing getCategorias");
   const result = await client.queryObject(`
     SELECT id, name, path, parent
     FROM tecnm_course_categories
@@ -176,6 +233,7 @@ async function getCategorias(client: Client) {
 }
 
 async function getCategoriasCursos(client: Client, categoriaId: number) {
+  console.log("Executing getCategoriasCursos", { categoriaId });
   const result = await client.queryObject(
     `SELECT id, fullname, shortname, category
      FROM tecnm_course

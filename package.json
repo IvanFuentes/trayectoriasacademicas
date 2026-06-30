@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "ng": "ng",
+    "prestart": "node ./scripts/generate-env.js",
+    "prebuild": "node ./scripts/generate-env.js",
     "start": "ng serve",
     "build": "ng build"
   },
